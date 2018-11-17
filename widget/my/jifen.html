@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body style="background:#fff">
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">积分钱包</h1>
+		</header>
+		<div class="header_counter">
+			<div class="jifen_box">
+				<div class="jifen_tab">
+					<span data-id="1" class="active">积分明细</span>
+					<span data-id="2">福利领取</span>
+				</div>
+				<ul class="jifen_list">
+					<!-- <li>
+						<span>
+							<p>兑换 馈赠·四季繁歌新人豪礼</p>
+							<p>2018-10-01  12:11:42</p>
+						</span>
+						<span>
+							<p>+500积分</p>
+						</span>
+					</li>
+					<li>
+						<span>
+							<p>兑换 馈赠·四季繁歌新人豪礼</p>
+							<p>2018-10-01  12:11:42</p>
+						</span>
+						<span>
+							<p>+500积分</p>
+						</span>
+					</li>
+					<li>
+						<span>
+							<p>兑换 馈赠·四季繁歌新人豪礼</p>
+							<p>2018-10-01  12:11:42</p>
+						</span>
+						<span>
+							<p>+500积分</p>
+						</span>
+					</li> -->
+				</ul>
+				<ul class="fuli_list">
+					<!-- <li>
+						<span>
+							<img src="../img/list_photo.png" />
+						</span>
+						<span>
+							<p class="title">兑换 馈赠·四季繁歌新人豪礼</p>
+							<span class="jifen_fama">
+								<p><b>0</b>积分</p>
+								<p>后台发码</p>
+							</span>
+						</span>
+						<span>免费领取</span>
+					</li>
+					<li>
+						<span>
+							<img src="../img/list_photo.png" />
+						</span>
+						<span>
+							<p class="title">兑换 馈赠·四季繁歌新人豪礼</p>
+							<span class="jifen_fama">
+								<p><b>0</b>积分</p>
+								<p>后台发码</p>
+							</span>
+						</span>
+						<span>免费领取</span>
+					</li>
+					<li>
+						<span>
+							<img src="../img/list_photo.png" />
+						</span>
+						<span>
+							<p class="title">兑换 馈赠·四季繁歌新人豪礼</p>
+							<span class="jifen_fama">
+								<p><b>0</b>积分</p>
+								<p>后台发码</p>
+							</span>
+						</span>
+						<span>免费领取</span>
+					</li> -->
+				</ul>
+			</div>
+
+		</div>
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js" ></script>
+		<script type="text/javascript" src="../js/mui.min.js" ></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script>
+			var dataId = 1,uid;
+			uid=$api.getStorage('userId');
+			api_init = function() {
+				getData()
+			}
+			function getData(a=0) {
+				if(a!=0){
+					dataId=2;
+				}
+				if (dataId == 1) {
+					api.ajax({
+						url: apis + 'manage/jifenMX',
+						method: 'post',
+						data: {
+							values: {
+								uid: uid
+							}
+						}
+					},function (ret, err) {
+						console.log(JSON.stringify(ret))
+						if (ret.code == 1) {
+									var html = '';
+							if (ret.data.length > 0) {
+
+								$.each(ret.data, function(i,v){
+									if(v.type==1){
+										html += '<li><span><p>兑换'+' '+v.s_name+'</p><p>'+v.createtime+'</p></span><span><p>-'+v.jifen+'积分</p></span></li>'
+									}else {
+										html += '<li><span><p>推广积分</p><p>'+v.createtime+'</p></span><span><p>+'+v.jifen+'积分</p></span></li>'
+									}
+
+								})
+
+							}else {
+								$('.fuli_list').empty();
+								html += '<div class="zanwu" style=" text-align:center;margin-top:15px;">暂无数据</div>';
+							}
+							$('.jifen_list').html(html);
+
+						}
+					})
+				} else {
+					api.ajax({
+						url: apis + 'manage/fuliList',
+						method: 'post',
+						data: {
+							values: {
+								uid: uid
+							}
+						}
+					}, function(ret, err) {
+						if (ret.code == 1) {
+							console.log(JSON.stringify(ret));
+								var html = '';
+							if (ret.data.length > 0) {
+
+								console.log(JSON.stringify(ret));
+								$.each(ret.data, function(i,v){
+									html += '<li onclick="goodsdetails('+ v.id +')"><span><img src= "'+ iapi + v.s_pic +'"  /></span><span><p class="title">'+v.s_name+'</p>';
+									html += '<span class="jifen_fama"><p><b>0</b>积分</p><p>'+v.rules_name+'</p></span></span><span>免费领取</span></li>';
+								});
+
+							}else {
+
+								$('.fuli_list').empty();
+								html += '<div class="zanwu" style=" text-align:center;margin-top:15px;">暂无数据</div>';
+							}
+
+								$('.fuli_list').html(html);
+						}else{
+
+						}
+					})
+				}
+			}
+			$('.jifen_tab span').click(function(){
+				$(this).addClass('active').siblings().removeClass('active')
+				dataId = $(this).attr('data-id')
+				if(dataId == 1){
+					$('.jifen_list').show()
+					$('.fuli_list').hide()
+				}else if(dataId==2){
+					$('.jifen_list').hide()
+					$('.fuli_list').show()
+				}
+
+				getData();
+			})
+			function goodsdetails(id) {
+				api.ajax({
+					url: apis + 'shop/shop_hot',
+					method: 'get',
+					data: {
+						values: {
+							gid: id,
+						},
+
+					}
+				}, function(ret, err) {
+					if (ret) {
+						//alert( JSON.stringify( ret ) );
+					} else {
+						//alert( JSON.stringify( err ) );
+					}
+				});
+
+				api.openWin({
+					name: 'goodsDetail',
+					url: '../index/sp_detail.html',
+					pageParam: {
+						sid: id,
+						stype: 1,
+						from: 'jifen',
+					}
+				});
+			}
+			//其他页面改变收藏状态调用这个方法
+			//不能删
+			function shoucangstatus(id) {
+				 
+
+			}
+		</script>
+	</body>
+</html>

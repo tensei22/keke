@@ -1,0 +1,504 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/swiper.min.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style>
+		html,body{background: #f2f4f8;}
+	input::-webkit-input-placeholder{color: #aaa;font-weight: bold;}
+	.mui-icon{font-size: 21px;}
+	</style>
+</head>
+
+<body style="background: #f2f4f8;">
+	<!--头 -->
+	<header class=" mui-bar mui-bar-nav ">
+		<a class="mui-icon mui-pull-left event_back"><i class="iconfont icon-fanhui"></i></a>
+		<h1 class="mui-title">联系客服</h1>
+	</header>
+	<div class="mui-content counter_box">
+		<div class="jiemian_box">
+			<div class="liaojie_jm">
+				<ul class=" gongyong_ys my_jm" id="clist">
+					 <li>
+						<span class="time"><p><m>05.31</m><m>15:24</m></p></span>
+						<span class="huida">
+								<span>
+									<img src="../img/list_photo.png"/>
+								</span>
+						<span class="name">1</span>
+						<span>你好你好你好好你好你好你好你好你你好你好好</span>
+						</span>
+					</li>
+					<li>
+						<span class="time"><p><m>05.31</m><m>15:36</m></p></span>
+						<span class="huida self">
+								<span>
+									<img src="../img/list_photo.png"/>
+								</span>
+						<span ></span>
+						<span><i class="mui-icon mui-icon-mic"></i>点击播放</span>
+						</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<!--输入框-->
+	<div class="shuru_box_big">
+		<div class="shuru_box">
+			<!-- <i class="iconfont icon-sousuoxiawu-defuben yuyin show one"></i> -->
+			<i class="iconfont icon-jianpan jianpan show one"></i>
+			<input type="text" class="shuru show" id="msg-text" placeholder="请输入..."/>
+			<!-- <input type="button" value="按住说话" class="button none" id="msg-sound" /> -->
+			<!--<i class="iconfont icon-bq" id="msg-bq"><img src="../img/face2.png"></i>-->
+			<div class="fasong" id="send">发送</div>
+			<i class="iconfont icon-xiangjidefuben img_box"></i>
+
+		</div>
+		<div class="bottom_list" id="bqtab">
+			<div class="mui-slider">
+				<div class="bqtab mui-slider-group">
+					<div class="mui-slider-item">
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="zzc_bj"></div>
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+
+	<script type="text/javascript" src="../js/arttmpl.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/swiper.min.js"></script>
+
+
+	<script type="text/javascript">
+		var uid,tid=43;
+		mui.init({
+        gestureConfig: {
+            tap: true, //默认为true
+            doubletap: true, //默认为false
+            longtap: true, //默认为false
+            swipe: true, //默认为true
+            drag: true, //默认为true
+            hold: true, //默认为false，不监听
+            release: true //默认为false，不监听
+        }
+    });
+
+		api_init = function() {
+			uid =$api.getStorage('userId');
+			tid=43;//客服id
+			getData(tid);//获取聊天记录
+			setTap();		//开启点击事件
+			setInterval(function() {
+				getData();
+			}, 500);
+
+		}
+
+
+		var localData;
+
+		function getData(tid) {
+			uid =$api.getStorage('userId');
+
+					tid=43;//客服id
+			$.ajax({
+				url: apis + 'message/getmess',
+				data: {
+						tid: tid,
+						uid: uid
+				},
+				success: function(ret) {
+
+				console.log(JSON.stringify(ret));
+
+				 if (ret.code == 0 && localData != JSON.stringify(ret.data)) {
+
+						//获取成功且有聊天记录
+						localData = JSON.stringify(ret.data);
+
+						$('#clist').html('');
+						$.each(ret.data.items, function(k, v) {
+							if ($('#mess' + v.id).html()) {
+								return true;
+							}
+							var html = '';
+							if (uid != v.uid) {
+
+								self = '';
+								headimg = iapi + ret.data.user.headimg;
+							} else {
+								name = '';
+								self = 'self';
+								headimg = iapi + ret.data.self.headimg;
+							}
+
+							html = '<li id="mess' + v.id + '">';
+							if (v.sendtime != '0000-00-00 00:00:00') {
+								date = v.sendtime.split(' ')[0].replace(/\d{4}-/, '');
+								time = v.sendtime.split(' ')[1].replace(/:\d{2}$/, '');
+								html += '<span class="time"><p><m>' + date + '</m><m>' + time + '</m></p></span>';
+							}
+							html += '<span class="huida ' + self + '">' +
+								'<span>' +
+								'<img src="' + headimg + '"/>' +
+								'</span>' +
+								'<span class="name">' + name + '</span>';
+							if (v.type == 2) {//语音文件
+								var path = v.content.split(',')[0];
+								var time = v.content.split(',')[1];
+								time = (time > 1 ? time : 1) + '"';//mui-icon mui-icon-mic
+								html += '<span class="play-state"  data-path="' + path + '"><i class="icon-stop ' + (uid != v.uid ? '' : 'icon-180') + '"></i>点击播放</span>';
+							} else if (v.type == 1) {//图片
+								html += '<span class="photo-liaotian"><img src="' + iapi + v.content + '"/></span>';
+							} else {//文字
+								//v.content = ei(v.content);
+								html += '<span class="chat-text">' + v.content + '</span>';
+							}
+
+							html += '</span>';
+							'</li>';
+							$('#clist').append(html);
+						});
+						$('#clist').css('margin-bottom', '50px');
+						$('.chat-text').css('max-width', '80%')
+						$('.chat-text img').css('position', 'relative').css('top', '4px');
+						setTimeout(function() {
+							$(document).scrollTop($(document).height());
+						}, 400);
+						//点击图片
+						$('.photo-liaotian img').on('tap', function() {
+							var images = [];
+							var choice = $(this).attr('src');
+							var the = 0;
+							var n = 0;
+							$('.photo-liaotian img').each(function() {
+								if (choice == $(this).attr('src')) {
+									the = n;
+								}
+								n++;
+								var src = $(this).attr('src');
+								images.push(src.replace('//uploads', '/uploads'));
+							});
+							api.openWin({
+								name: 'photoBrowser',
+								url: '../page/photoBrowser.html',
+								pageParam: {
+									name: 'photoBrowser',
+									images: images,
+									the: the
+								}
+							});
+						})
+						//语音
+						$('.play-state').on('tap', function() {
+							// $('.play-state i').removeClass('icon-playing');
+							// $('.play-state i').addClass('icon-stop');
+							//api.stopPlay();
+							var icon = $(this).find('i');
+							var path = $(this).attr('data-path');
+							sp = path.split('/');
+							sname = sp[sp.length - 1];
+							api.download({
+								url: iapi + path,
+								savePath: 'fs://' + sname,
+								report: true,
+								cache: true,
+								allowResume: true
+							}, function(ret, err) {
+								if (ret.state == 1) {
+									var path = ret.savePath;
+									icon.removeClass('icon-stop');
+									icon.addClass('icon-playing');
+									api.startPlay({
+										path: path
+									}, function(ret, err) {
+										if (ret) {
+										//	console.log(JSON.stringify(ret));
+										} else {
+										//	console.log(JSON.stringify(err));
+										}
+										icon.removeClass('icon-playing');
+										icon.addClass('icon-stop');
+									});
+								} else {
+									//console.log(JSON.stringify(ret));
+								}
+							});
+						})
+			 	}
+				}
+			});
+		}
+		//更换头像
+		$('.img_box').on('click', function() {
+				//console.log('tap headimg');
+				api.actionSheet({
+						title: '上传图片',
+						cancelTitle: '取消',
+						buttons: ['拍照', '图库']
+				}, function(ret, err) {
+						if (ret) {
+								type = ['library', //图片库
+										'camera', //相机
+										'album' //相册
+								]
+								console.log(ret.buttonIndex);
+								if (ret.buttonIndex < 3)
+										getPicture(type[ret.buttonIndex]);
+						} else {
+								console.log(JSON.stringify(err));
+						}
+				});
+		});
+		function getPicture(type) {
+				api.getPicture({
+						sourceType: type,
+						mediaValue: 'pic',
+						destinationType: 'url',
+				}, function(ret, err) {
+						if (ret) {
+								//console.log(ret.data);
+								if(ret.data){
+
+									api.showProgress({
+										style: 'default',
+										animationType: 'fade',
+										title: '上传中...',
+										text: '请稍等...',
+										modal: false
+									});
+									api.ajax({
+										 url: apis + 'upload/img',
+										 method: 'post',
+										 data: {
+
+												 files: {
+														 imagefile: ret.data,
+												 }
+										 }
+								 }, function(ret, err) {
+
+										 if (ret) {
+
+												send(1, ret.data);//发送图片
+													 api.hideProgress();
+										 } else {
+												 //console.log(JSON.stringify(err));
+										 }
+								 });
+								}
+
+						} else {
+								//console.log(JSON.stringify(err));
+						}
+				});
+		}
+		function send( type, content) {
+
+			$.ajax({
+				url: apis + 'message/send',
+				data: {
+					uid:uid,
+					tid:tid,
+					type: type,
+					content: content
+				},
+				success: function(ret) {
+					if (ret.code == 0) {
+						console.log(JSON.stringify(ret));
+						if (type == 0) {
+							$('#msg-text').val('');
+						}
+
+						getData(tid);
+					}
+				},
+				error: function(e) {
+					console.log(JSON.stringify(e));
+				}
+			});
+		}
+
+
+		function setTap() {
+			$('.picture').on('tap', function() {
+
+				var type = $(this).attr('id');
+				api.getPicture({
+					sourceType: type,
+					mediaValue: 'pic',
+					destinationType: 'url',
+				}, function(ret, err) {
+					if (ret) {
+						api.ajax({
+							url: apis + 'upload/img',
+							method: 'post',
+							data: {
+								files: {
+									file: ret.data
+								}
+							}
+						}, function(ret, err) {
+							if (ret) {
+								console.log(JSON.stringify(ret));
+								send(tid, 1, ret.pic);
+								hi2 = true;
+								$('#bqtab').hide();
+								hi = true;
+								$('#tab1').hide();
+								$('#clist').css('margin-bottom', '50px');
+							} else {
+								console.log(JSON.stringify(err));
+							}
+						});
+					} else {
+						console.log(JSON.stringify(err));
+					}
+				});
+			});
+
+			$('#send').on('tap', function() {
+				var content = $('#msg-text').val();
+				if (content.replace(/ /g, '') != '') {
+					send(0, content);
+					//$('.icon-add').show()//选择图片
+				//	$('.fasong').hide()
+					hi2 = true;
+					//$('#bqtab').hide();
+					hi = true;
+
+					//$('#clist').css('margin-bottom', '50px');
+				}
+			});
+
+			$('#msg-sound').on('hold', function() {
+				api.startRecord({
+					path: 'fs://a.amr'
+				});
+				api.showProgress({
+					style: 'default',
+					animationType: 'fade',
+					title: '录音中...',
+					text: '请说话...',
+					modal: false
+				});
+			});
+
+			$('#msg-sound').on('release', function() {
+
+				api.stopRecord(function(ret, err) {
+					api.hideProgress();
+					if (ret) {
+						var path = ret.path;
+						var duration = ret.duration;
+						api.ajax({
+							url: apis + 'upload/file',
+							method: 'post',
+							data: {
+								files: {
+									file: path
+								}
+							}
+						}, function(ret, err) {
+							if (ret) {
+								console.log(JSON.stringify(ret));
+								if (ret.code == 0) {
+
+									send(2, ret.data + ',' + duration);
+								}
+							} else {
+								console.log(JSON.stringify(err.msg));
+							}
+						});
+					}
+				});
+			})
+		}
+			//语音点击
+		$('.yuyin').on('tap', function() {
+			$('.none').show()
+			$('.show').hide()
+			hi2 = true;
+			$('#bqtab').hide();
+			hi = true;
+			$('#tab1').hide();
+			$('#clist').css('margin-bottom', '50px');
+		})
+		//键盘
+		$('.jianpan').on('tap', function() {
+			$('.show').show()
+			$('.none').hide()
+		})
+
+		var hi = true;
+		$('#add').on('tap', function() {
+			hi2 = true;
+			$('#bqtab').hide();
+			$('#clist').css('margin-bottom', '50px');
+			$('#tab1').toggle('200')
+			hi = !hi;
+			setTimeout(function() {
+				$('#clist').css('margin-bottom', hi ? '50px' : ($('#tab1').height() + 80) + 'px');
+				$(document).scrollTop($(document).height());
+			}, 250);
+		})
+		var hi2 = true;
+		$('#msg-bq').on('tap', function() {
+			hi = true;
+			$('#tab1').hide();
+			$('#clist').css('margin-bottom', '50px');
+			$('#bqtab').toggle('200')
+			hi2 = !hi2;
+			setTimeout(function() {
+				$('#clist').css('margin-bottom', hi2 ? '50px' : ($('#bqtab').height() + 80) + 'px');
+				$(document).scrollTop($(document).height());
+			}, 250);
+		})
+
+		$('.shuru').focus(function() {
+			hi2 = true;
+			$('#bqtab').hide();
+			$('#clist').css('margin-bottom', '50px');
+			if ($(this).val().replace(/ /g, '') != "") {
+				$('.icon-add').hide()
+				$('.fasong').show()
+			}
+			setTimeout(function() {
+				$(document).scrollTop($(document).height());
+			}, 200);
+		});
+
+		$('.zzc_bj').on('tap', function() {
+			$('.liwu_bj').hide()
+			$('.zzc_bj').hide()
+		})
+
+
+		$(".bqtab .mui-slider-item").on('tap', 'div', function() {
+			var id = $(this).attr('id');
+			var content = $("#msg-text").val();
+			$("#msg-text").val(content + es[id.replace('wb', '')]);
+			if ($('.shuru').val().replace(/ /g, '') != "") {
+				$('.icon-add').hide()
+				$('.fasong').show()
+			}
+			return false;
+		});
+	</script>
+</body>
+
+</html>

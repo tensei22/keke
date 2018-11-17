@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css"/>
+		<link rel="stylesheet" href="../css/style.css"/>
+		<style>
+			.xiaoxi_box{text-align: center;}
+			.xiaoxi_box .xiaoxi_time{padding: 2px 5px;background: #fcb9ce;color: #fff;border-radius: 5px;min-width: 50px;margin: 20px 0;display: inline-block;}
+			.xiaoxi_box ul{width: 100%;overflow: hidden;padding: 0 10px;}
+			.xiaoxi_box ul li{background: #fff;width: 100%;border-radius: 5px;padding: 10px;margin-bottom: 15px;}
+			.xiaoxi_box ul li p{color: #111;width: 100%;display: block;text-align: left;}
+			.xiaoxi_box ul li p:nth-child(2){ text-indent:28px;margin-top: 5px;}
+			.xiaoxi_box ul li p:last-child{text-align: right;color: #adaeae;margin-top: 5px;}
+		</style>
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav toblue">
+			<a class="mui-pull-left event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">我的消息</h1>
+		</header>
+		<div class="header_counter xiaoxi_box">
+			<!-- <span class="xiaoxi_time">2018-09-27</span>
+			<ul>
+				  <li>
+					<p>系统消息</p>
+					<p>尊贵的用户，您好！您的等级已提升，可享受更高折扣优惠~</p>
+					<p>2018-09-17 12：33:56</p>
+				</li>
+
+			</ul> -->
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script type="text/javascript">
+		var uid;
+		uid=$api.getStorage("userId");
+			api_init = function() {
+				getData()
+			}
+			function getData(){
+				api.ajax({
+				    url: apis+'manage/message',
+				    method: 'post',
+				    data: {
+				        values: {
+				            uid: uid
+				        },
+
+				    }
+				},function(ret, err){
+				    if (ret) {
+							console.log(JSON.stringify(ret));
+				       //if(ret.data.dateday);
+							 html='';
+							 $.each(ret.data,function(k,v){
+								 html+="<span class='xiaoxi_time'>"+v.createday+"</span>";
+								 var edata=v.datas;
+								 for (var i = 0; i < edata.length; i++) {
+									 	html+="<ul><li><p>系统消息</p><p>"+	edata[i].content+"</p><p>"+	edata[i].createtime+"</p></li></ul>";
+
+								 }
+								//  $.each(edata.data,function(kk,vv){
+								 //
+								//  })
+
+							 })
+										$(".header_counter").append(html);
+				    } else {
+				        //alert( JSON.stringify( err ) );
+				    }
+				});
+
+
+			}
+
+			</script>
+	</body>
+</html>

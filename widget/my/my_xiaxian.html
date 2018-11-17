@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">我的下线</h1>
+			<a class="mui-icon mui-pull-right newact" url="tuiguang_jifen.html"><p>推广积分</p></a>
+		</header>
+		<div class="header_counter">
+			<div class="xiaxian_box">
+				<div class="xiaxian_title">
+					<p>下线历史积分总额：<b id="refer_score"></b>积分</p>
+				</div>
+				<ul class="xiaxian_list">
+					<!-- <li>
+						<span>
+							<img src="../img/list_photo.png"/>
+						</span>
+						<span>
+							<p>发发牛</p>
+							<p>等级:<b>青铜</b></p>
+						</span>
+					</li>
+					<li>
+						<span>
+							<img src="../img/list_photo.png"/>
+						</span>
+						<span>
+							<p>发发牛</p>
+							<p>等级:<b>青铜</b></p>
+						</span>
+					</li> -->
+				</ul>
+			</div>
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script type="text/javascript">
+		 var uid;
+		 uid=$api.getStorage('userId');
+			api_init = function() {
+				getData();
+			}
+
+			function getData() {
+				api.ajax({
+					url: apis + 'manage/myReferLishiJifen',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid,
+						}
+					}
+				},function(ret, err) {
+					console.log(JSON.stringify(ret));
+					if (ret.code == 1) {
+						$api.setStorage('refer_score', ret.data);
+						$('#refer_score').text(ret.data);
+					}
+				});
+				//获取下线列表
+				api.ajax({
+					url: apis + 'manage/my_referrals',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid
+						}
+					}
+				}, function(ret, err){
+					console.log(JSON.stringify(ret));
+					if (ret.code == 1) {
+						if (ret.data.length > 0) {
+							var html='';
+							$.each(ret.data, function(i,v) {
+								console.log(JSON.stringify(ret));
+								html += '<li><span><img src="'+iapi+v.headimg+'"/></span><span><p>'+v.nicheng+'</p><p>等级:<b>'+v.name+'</b></p></span></li>';
+							});
+							$('.xiaxian_list').append(html);
+						}
+					}
+				})
+			}
+		</script>
+	</body>
+</html>

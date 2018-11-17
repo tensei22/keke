@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style>
+
+	</style>
+</head>
+
+<body>
+	<!--头 -->
+	<header class="mui-bar touming_head ">
+		<h1 class="mui-title">我的</h1>
+	</header>
+	<div class="my_box">
+
+		<div class="my_info newact" url="../my/info.html">
+			<span>
+					<img src="../img/list_photo.png" id="headimg"/>
+				</span>
+			<span>
+					<p id="nicheng"> </p>
+					<p>等级：<b id="grade"> </b></p>
+				</span>
+		</div>
+		<div class="index_tongji">
+			<span>
+					<p id="jifen"> </p>
+					<p>积分</p>
+				</span>
+			<b class="xian"></b>
+			<span>
+					<p id="score"></p>
+					<p>历史积分积累</p>
+				</span>
+		</div>
+		<ul class="my_list">
+			<li class="newact" url="../my/tuiguangma.html">
+				<i class="iconfont icon-yaoqingma"></i>
+				<span>
+						<p>推广邀请码</p>
+					</span>
+			</li>
+			<li class="newact" url="../my/my_sc.html">
+				<i class="iconfont icon-shoucang"></i>
+				<span>
+						<p>我的收藏</p>
+					</span>
+			</li>
+			<li class="newact" url="../my/jifen.html">
+				<i class="iconfont icon-jifen"></i>
+				<span>
+						<p>积分钱包</p>
+					</span>
+			</li>
+
+			<li class="newact" url="../my/message.html">
+				<i class="iconfont icon-xiaoxion2x"></i>
+				<span>
+						<p>我的消息</p>
+					</span>
+			</li>
+			<li class="newact" url="../my/my_xiaxian.html">
+				<i class="iconfont icon-fenxiao1"></i>
+				<span>
+						<p>我的下线</p>
+					</span>
+			</li>
+			<li class="newact" url="../my/chat.html">
+				<i class="iconfont icon-lianxikefu"></i>
+				<span>
+						<p>联系客服</p>
+
+					</span>
+
+			</li>
+		</ul>
+		<ul class="my_list" style="margin-bottom:20px;">
+			<li class="newact" url="../my/set.html">
+				<i class="iconfont icon-settings"></i>
+				<span>
+						<p>设置</p>
+					</span>
+			</li>
+		</ul>
+	</div>
+	<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script src="../js/common.js" charset="utf-8"></script>
+	<script>
+		var nicheng = '',
+			grade, headimg = '',
+			uid, localData;
+		var tid = 43; //客服id
+
+		api_init = function() {
+				api.showProgress({
+					style: 'default',
+					animationType: 'fade',
+					title: '努力加载中...',
+					text: '先喝杯茶...',
+					modal: false
+				});
+				getInfo();
+
+				setTimeout(function() {
+					api.hideProgress();
+				}, 500)
+				my_message();
+				// setInterval(function() {
+				// 		 my_message();
+				// }, 5000);
+
+			}
+			//用户信息
+		function getInfo() {
+			uid = $api.getStorage('userId');
+
+			api.ajax({
+				url: apis + 'manage/userinfo',
+				method: 'get',
+				data: {
+					values: {
+						uid: uid
+					}
+				}
+			}, function(ret, err) {
+				//console.log(JSON.stringify(ret))
+				if (ret.code == 1) {
+					if (ret.data != '' && ret.data != null) {
+						//console.log(uid);
+						nicheng = ret.data.nicheng;
+						headimg = ret.data.headimg;
+						grade = ret.data.name;
+						$('#nicheng').text(nicheng);
+						$('#headimg').attr('src', iapi + headimg);
+						$('#grade').text(grade);
+						$('#jifen').text(ret.data.u_jifen);
+						$('#score').text(ret.data.u_zjinfen);
+					} else {
+						$api.clearStorage();
+					}
+					//console.log(nicheng)
+
+				} else {
+					$api.clearStorage();
+				}
+			});
+		}
+		//客服消息红点
+		function my_message() {
+			uid = $api.getStorage('userId');
+
+			api.ajax({
+				url: apis + 'message/getList',
+				method: 'get',
+				data: {
+					values: {
+
+						uid: uid,
+					}
+				}
+			}, function(ret, err) {
+				if (ret) {
+
+					//console.log(JSON.stringify(ret));
+					if (ret.code == 0) {
+						//客服消息
+						if (ret.data.items[0].unread > 0) {
+							//红点显示
+
+						} else {
+							console.log(22);
+							//红点关闭
+						}
+					}
+
+				} else {
+
+					//  alert( JSON.stringify( err ) );
+				}
+			});
+
+		}
+
+
+
+		$(window).on('scroll', function() {
+			var carInfoCon = $('.touming_head');
+			var $scroll = $(this).scrollTop();
+			carInfoCon.each(function(index) {
+				var _this = $(this);
+				var $scrollTop = _this.offset().top;
+				if ($scrollTop >= 30) {
+					carInfoCon.css('background', 'rgba(0,0,0,.2)')
+				} else {
+					carInfoCon.css('background', 'rgba(0,0,0,.0)')
+				}
+				// else if ($scroll < 328) {
+				// 	// carInfoCon.removeClass('position_box_fiexd')
+				// 	// carInfoCon.css('background','rgba(0,0,0,.3)')
+				// 	return false;
+				// }
+			});
+		});
+	</script>
+</body>
+
+</html>

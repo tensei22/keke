@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style>
+			.zhifu_box .zhifu_sp span p:nth-child(2) b{
+				margin-right:8px;
+			}
+			.zhifu_box .zhifu_sp span p del{
+					color:#FB7299;
+					font-size: 12px;
+			}
+	</style>
+</head>
+
+<body>
+	<!--头 -->
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon event_back mui-pull-left logo"><i class="iconfont icon-fanhui"></i></a>
+		<h1 class="mui-title">在线支付</h1>
+	</header>
+	<div class="header_counter ">
+		<div class="zhifu_box">
+			<div class="zhifu_time">
+				<p>支付剩余时间</p>
+				<p id="leftTimeTag"></p>
+			</div>
+			<div class="zhifu_sp">
+				<span>
+						<img src=""/>
+						<!-- ../img/list_photo.png -->
+					</span>
+				<span>
+						<p id="s_name"></p>
+						<!-- 馈赠·四季繁歌新人豪礼 -->
+						<p>需支付：<b id="s_jifen"></b><del id="y_jiage"></del></p>
+						<!-- 100积分 -->
+					</span>
+			</div>
+			<div class="zhifu_fs">
+				<span>
+						<p>支付方式:</p>
+						<p></p>
+					</span>
+				<span>
+						<p>积分余额 </p>
+						<p id="u_jifen"></p>
+					</span>
+			</div>
+		</div>
+		<!-- <div class="zhifu_fama">
+				<ul>
+					<li>
+						<p>QQ账号</p>
+						<input type="text" placeholder="请输入游戏账号" value="155341236744" readonly="readonly"/>
+					</li>
+					<li>
+						<p>游戏账号</p>
+						<input type="text" placeholder="请输入游戏账号" value="155341236744@qq.com" readonly="readonly"/>
+					</li>
+					<li>
+						<p>游戏名称</p>
+						<input type="text" placeholder="请输入游戏账号" value="四季繁荣" readonly="readonly"/>
+					</li>
+					<li>
+						<p>备注</p>
+						<input type="text" placeholder="请输入游戏账号" value="备注内容" readonly="readonly"/>
+					</li>
+				</ul>
+			</div> -->
+		<button class="duihuan_button bottom">立即支付</button>
+	</div>
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script>
+		var sid, i = 0,
+			status, rel_jifen, u_jifen, zhekou, oid, uid, createtimes,times,paystatus,nowTime;
+		uid = $api.getStorage('userId');
+		// u_jifen = $api.getStorage('u_jifen');
+		// u_zhekou = $api.getStorage('u_zhekou');
+
+
+		function api_init() {
+			oid = api.pageParam.oid;
+
+			godelete();
+
+
+				getData();
+						 	timer();
+
+		}
+		function godelete(){
+			api.ajax({
+			    url: apis+'deleteOrder',
+			    method: 'get',
+			    data: {
+						uid:uid
+			    }
+			},function(ret, err){
+			    if (ret) {
+			        //alert( JSON.stringify( ret ) );
+			    } else {
+			        //alert( JSON.stringify( err ) );
+			    }
+			});
+
+		}
+		function getData() {
+
+			api.ajax({
+				url: apis + 'order/orderDetail',
+				method: 'get',
+				data: {
+					values: {
+						oid: oid
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+
+					 console.log( JSON.stringify( ret ) );
+					 var y_jiage=ret.data.s_jifen;
+					 $('#y_jiage').text(y_jiage+'积分');
+					   u_jifen= ret.data.u_jifen;
+				  $('#u_jifen').text(u_jifen);
+				  	u_zhekou=ret.data.zhekou;
+					$(".zhifu_sp img").attr('src', iapi + ret.data.s_pic);
+					$("#s_name").text(ret.data.s_name);
+					createtimes=ret.data.createtime;//下单时间
+					$("#s_jifen").text(ret.data.totalPrice + "积分");
+					rel_jifen = ret.data.totalPrice;
+						nowTime=ret.data.nowtime;
+
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+			});
+
+		}
+
+		function timer() {
+
+
+			 interval = setInterval("timer1()", 1000);
+		}
+
+		function timer1() {
+			i++;
+
+			  times =nowTime- Date.parse(createtimes)/1000;
+
+
+					var leftTime = (Date.parse(createtimes)/1000+900 - nowTime-i );
+
+					if (leftTime < 1) {
+							$("#leftTimeTag").text("00:00");
+						status = 1;
+						clearInterval(interval);
+
+						return;
+					}
+			var minute = parseInt(leftTime / 60 % 60, 10);
+			var second = parseInt(leftTime % 60, 10);
+			var min = checkTime(minute);
+			var sec = checkTime(second);
+			$("#leftTimeTag").text(min + ":" + sec);
+			if (leftTime < 1) {
+				status = 1;
+				clearInterval(interval);
+			}
+		}
+
+		function checkTime(i) {
+			if (i < 10) {
+				i = "0" + i;
+			}
+			return i;
+		}
+		$(".duihuan_button").on('click', function() {
+
+			if (status == 1) {
+				alert('订单已超时');
+
+				return;
+			}
+
+
+			api.ajax({
+				url: apis + 'order/goPay',
+				method: 'get',
+				data: {
+					values: {
+						oid: oid,
+					},
+				}
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.code == 1) {
+
+						//更新订单页面
+						api.execScript({
+							name: 'root',
+							frameName: 'order',
+							script: 'getData("all",0);'
+						});
+						//更新首页
+						api.execScript({
+							name: 'root',
+							frameName: 'index',
+							script: 'getnums()'
+						});
+						//更新我的
+						api.execScript({
+							name: 'root',
+							frameName: 'my',
+							script: 'getInfo()'
+						});
+						//更新福利领取页面
+						api.execScript({
+							name: 'jifen',
+							script: 'getData(1)'
+						});
+						api.openWin({
+							name: 'success',
+							url: './success.html',
+							pageParam: {
+								oid: oid,
+							}
+						});
+					} else {
+						alert(ret.msg);
+					}
+				} else {
+					 //alert( JSON.stringify( err ) );
+				}
+			});
+
+		})
+	</script>
+</body>
+
+</html>

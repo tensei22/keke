@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">推广邀请码</h1>
+		</header>
+		<div class="header_counter">
+			<div class="yaoqingma_box">
+				<p>我的邀请码:<b id="code"></b><b style="color:#fb7299;margin-left:8px;" id="fuzhi">[复制]</b></p>
+				<p>有效次数:<b id="count"></b></p>
+			</div>
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script type="text/javascript">
+		var uid,code,nicheng,y_count,url,html;
+		uid=$api.getStorage("userId");
+			api_init = function() {
+				getData();
+				gettuiguang();
+			}
+			function getData() {
+				api.ajax({
+					url: apis + 'manage/userinfo',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid
+						}
+					}
+				}, function(ret, err) {
+					if (ret.code == 1) {
+						//console.log(JSON.stringify(ret));
+						$('#code').text(ret.data.code);
+						code=ret.data.code;//邀请码
+						nicheng=ret.data.nicheng;//昵称
+						y_count=ret.data.y_count;//次数
+						url=iapi+'app/keke.apk';//链接
+						$('#count').text(ret.data.y_count);
+
+						gettuiguang();
+					}
+				});
+
+
+
+
+			}
+			function gettuiguang(){
+				api.ajax({
+				    url: apis+'index/tuiguang',
+				    method: 'get',
+				    data: {
+
+				    }
+				},function(ret, err){
+				    if (ret) {
+
+							if(ret.data!=''){
+								console.log(JSON.stringify(ret));
+								html=ret.data;
+
+								html=html.replace('XX1',nicheng);
+
+								html=html.replace('XX2',y_count);
+								html=html.replace('XX3',code);
+html=html.replace('XX4',iapi+'/APP/keke.apk');
+							}
+
+				    } else {
+				      //  alert( JSON.stringify( err ) );
+				    }
+				});
+
+			}
+			$("#fuzhi").on('click',function(){
+				var clipBoard = api.require('clipBoard');
+
+				clipBoard.set({
+						value: html
+				}, function(ret, err) {
+						if (ret) {
+
+								 api.toast({
+								     msg: '复制成功',
+								     duration: 2000,
+								     location: 'middle'
+								 });
+
+						} else {
+
+						}
+				});
+			})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style>
+	.duihuan_button{
+		margin:30px 0px 20px 10px;
+	}
+	</style>
+</head>
+
+<body>
+	<!--头 -->
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon event_back mui-pull-left logo"><i class="iconfont icon-fanhui"></i></a>
+		<h1 class="mui-title">商品详情</h1>
+		<a class="mui-icon mui-pull-right "><i id="shoucang" class="iconfont icon-shoucang1"></i></a>
+	</header>
+	<div class="header_counter">
+		<div class="sp_detail_box">
+			<div class="photo">
+				<!-- <img src="../img/sp_detail.jpg" /> -->
+			</div>
+			<div class="detail_title">
+				<h1 id="s_name"></h1>
+				<span>
+						<p><b id="s_jifen"> </b>积分</p>
+						<p id="s_type"></p>
+					</span>
+			</div>
+			<div class="detail_shuom">
+				<h1>相关说明</h1>
+				<ul>
+					<!-- <li>回城券*10</li>
+						<li>悟道仙珠*10</li>
+						<li>悟道圣珠*5</li>
+						<li>琥珀玄冰*5</li>
+						<li>龟灵玄冰*5</li>
+						<li>太极玄丹*2</li>
+						<li>无根神水*2 </li>
+						<li>高级元魂珠*</li>
+						<li>时装（弥云凉装）永久*1</li> -->
+				</ul>
+			</div>
+			<button class="duihuan_button">立即兑换</button>
+		</div>
+	</div>
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script>
+		var sid, s_type, uid, rel_price, s_jifen, oid, gid, type = '',stype = '',is_fuli;
+
+		function api_init() {
+
+			uid = $api.getStorage('userId');
+			sid = api.pageParam.sid;
+
+			if (api.pageParam.stype) {
+				stype = 1; //说明是福利商品
+				s_jifen = 0;
+			}
+
+			gid = sid;
+			getData();
+			if (uid) {
+				is_shoucang();
+
+			}
+
+		}
+
+		function getData() {
+			api.showProgress({
+			    style: 'default',
+			    animationType: 'fade',
+			    title: '努力加载中...',
+			    text: '先喝杯茶...',
+			    modal: false
+			});
+ 
+
+			api.ajax({
+				url: apis + 'shop/detail',
+				method: 'get',
+				data: {
+					values: {
+						id: sid
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+
+					var pichtml = '<img width="100%" src=' + iapi + ret.data.s_pic + ' />';
+					$(".photo").append(pichtml)
+					$("#s_name").html(ret.data.s_name);
+					if (stype == 1) {
+						//福利商品
+						$("#s_jifen").text(0);
+						s_jifen = 0;
+						is_fuli = 1;
+					} else {
+						$("#s_jifen").text(ret.data.s_jifen);
+
+						s_jifen = ret.data.s_jifen;
+						is_fuli = 0;
+					}
+
+					$(".detail_shuom ul").append(ret.data.s_content);
+					$("#s_type").text(ret.data.rules_name);
+					s_type = ret.data.s_type;
+					api.hideProgress();
+					//console.log(JSON.stringify(ret));
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+
+			});
+
+
+
+
+		}
+
+		$(".duihuan_button").on('click', function() {
+			if (!check_login()) {
+				return;
+			}
+
+		//	console.log(uid + '-' + rel_price + '-' + sid);
+
+			//用户信息，方便下个页面使用
+			api.ajax({
+				url: apis + 'manage/userinfo',
+				method: 'post',
+				data: {
+					values: {
+						uid: uid
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+
+					var u_jifen = ret.data.u_jifen;
+					var zhekou = ret.data.zhekou;
+
+					rel_price = (s_jifen * zhekou);
+
+						goOrder();
+
+				} else {
+
+				}
+			});
+
+
+
+		})
+		function goOrder(){
+			//根据情况跳转页面
+			if (s_type == 1) {
+
+
+				//立即兑换
+				//生成order
+				api.ajax({
+					url: apis + 'order/goOrder',
+					method: 'get',
+					data: {
+						values: {
+							uid: uid,
+							price: rel_price,
+							gid: sid,
+							is_fuli: is_fuli,
+						},
+
+					}
+				}, function(ret, err) {
+					if (ret) {
+						if (ret.code == 1) {
+
+							oid = ret.data;
+							//更新订单页面
+							api.execScript({
+								name: 'root',
+								frameName: 'order',
+								script: 'getData("all",0);'
+							});
+							//更新首页
+							api.execScript({
+								name: 'root',
+								frameName: 'index',
+								script: 'getnums()'
+							});
+							//更新我的
+							api.execScript({
+								name: 'root',
+								frameName: 'my',
+								script: 'getInfo()'
+							});
+							//跳转支付页面
+							api.openWin({
+								name: 'zaixian_zhifu',
+								url: './zaixian_zhifu.html',
+								pageParam: {
+									oid: oid,
+								}
+							});
+						} else {
+							alert(ret.msg);
+						}
+
+					} else {
+					//	console.log(JSON.stringify(err));
+					}
+				});
+
+
+			} else {
+
+				//后台兑换
+				api.openWin({
+					name: 'yes_order',
+					url: './yes_order.html',
+					pageParam: {
+						sid: sid,
+					}
+				});
+
+			}
+		}
+
+		function is_shoucang() {
+
+			api.ajax({
+				url: apis + 'manage/is_shoucang',
+				method: 'gst',
+				data: {
+					values: {
+						uid: uid,
+						gid: sid,
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.code == 1) {
+
+						$(".mui-bar-nav .mui-pull-right i").addClass('active');
+						$(".mui-bar-nav .mui-pull-right i").addClass('icon-shoucang');
+						$(".mui-bar-nav .mui-pull-right i").removeClass('icon-shoucang1');
+						type = 1; //shoucang
+					}
+				} else {
+
+				}
+			});
+
+		}
+
+		$('.mui-bar-nav').on('click', '.mui-pull-right i', function() {
+					if($('.mui-bar-nav .mui-pull-right i').hasClass('icon-shoucang1')){
+						if (!uid) {
+							api.toast({
+								msg: '请登录后收藏',
+								duration: 2000,
+								location: 'bottom'
+							});
+							return;
+						}
+						type = 1;
+						$(this).toggleClass('active')
+						$(this).addClass('icon-shoucang');
+						$(this).removeClass('icon-shoucang1');
+
+						api.ajax({
+							url: apis + 'manage/collect',
+							method: 'post',
+							data: {
+								values: {
+									uid: uid,
+									gid: gid,
+									status: 0
+								},
+
+							}
+						}, function(ret, err) {
+							if (ret) {
+								//console.log(JSON.stringify(ret));
+								if (ret.code == 1) {
+
+									 //console.log(999)
+									//更改上个页面
+									// console.log(api.pageParam.from);
+									 //更改上个页面
+									 if(api.pageParam.from!='index'){
+										 //console.log(11);
+										 api.execScript({
+												 name: api.pageParam.from,
+												 script: 'shoucangstatus('+gid+');'
+										 });
+									 }
+
+									 //更改首页
+									 api.execScript({
+											 name: 'root',
+											 frameName:'index',
+											 script: 'getgoods();'
+									 });
+
+
+
+									api.toast({
+										msg: '收藏成功',
+										duration: 2000,
+										location: 'bottom'
+									});
+								} else {
+									api.toast({
+										msg: '收藏失败',
+										duration: 2000,
+										location: 'bottom'
+									});
+								}
+
+							} else {
+								// alert( JSON.stringify( err ) );
+							}
+						});
+					}else {
+						$(this).toggleClass('active')
+						$(this).addClass('icon-shoucang1');
+						$(this).removeClass('icon-shoucang');
+						api.ajax({
+							url: apis + 'manage/collect',
+							method: 'post',
+							data: {
+								values: {
+									uid: uid,
+									gid: gid,
+									status: 1
+								},
+
+							}
+						}, function(ret, err) {
+							if (ret) {
+								if (ret.code == 1) {
+
+									//更改上个页面
+									if(api.pageParam.from!='index'){
+									//	console.log(11);
+										api.execScript({
+												name: api.pageParam.from,
+												script: 'shoucangstatus('+gid+');'
+										});
+									}
+
+									//更改首页
+									api.execScript({
+											name: 'root',
+											frameName:'index',
+											script: 'getgoods();'
+									});
+
+
+
+									api.toast({
+										msg: '取消成功',
+										duration: 2000,
+										location: 'bottom'
+									});
+									//console.log(api.pageParam.from);
+
+
+								} else {
+									api.toast({
+										msg: '取消失败',
+										duration: 2000,
+										location: 'bottom'
+									});
+								}
+
+							} else {
+
+							}
+						});
+					}
+
+			// if (type == 1) {
+			//
+			// 	type = 2;
+			// 	$(this).toggleClass('active')
+			// 	$(this).addClass('icon-shoucang1');
+			// 	$(this).removeClass('icon-shoucang');
+			// 	api.ajax({
+			// 		url: apis + 'manage/collect',
+			// 		method: 'post',
+			// 		data: {
+			// 			values: {
+			// 				uid: uid,
+			// 				gid: gid,
+			// 				status: 1
+			// 			},
+			//
+			// 		}
+			// 	}, function(ret, err) {
+			// 		if (ret) {
+			// 			if (ret.code == 1) {
+			// 				api.toast({
+			// 					msg: '取消成功',
+			// 					duration: 2000,
+			// 					location: 'bottom'
+			// 				});
+			// 				//更改首页
+			// 				api.execScript({
+			// 						name: 'root',
+			// 						frameName:'index',
+			// 						script: 'getgoods();'
+			// 				});
+			// 				console.log(api.pageParam.from);
+			// 				//更改上个页面
+			// 				api.execScript({
+			// 				    name: api.pageParam.from,
+			// 				    script: 'shoucangstatus('+gid+');'
+			// 				});
+			//
+			// 			} else {
+			// 				api.toast({
+			// 					msg: '取消失败',
+			// 					duration: 2000,
+			// 					location: 'bottom'
+			// 				});
+			// 			}
+			//
+			// 		} else {
+			//
+			// 		}
+			// 	});
+			// } else {
+			// 	if (!uid) {
+			// 		api.toast({
+			// 			msg: '请登录后收藏',
+			// 			duration: 2000,
+			// 			location: 'bottom'
+			// 		});
+			// 		return;
+			// 	}
+			// 	type = 1;
+			// 	$(this).toggleClass('active')
+			// 	$(this).addClass('icon-shoucang');
+			// 	$(this).removeClass('icon-shoucang1');
+			//
+			// 	api.ajax({
+			// 		url: apis + 'manage/collect',
+			// 		method: 'post',
+			// 		data: {
+			// 			values: {
+			// 				uid: uid,
+			// 				gid: gid,
+			// 				status: 0
+			// 			},
+			//
+			// 		}
+			// 	}, function(ret, err) {
+			// 		if (ret) {
+			// 			//console.log(JSON.stringify(ret));
+			// 			if (ret.code == 1) {
+			// 				api.toast({
+			// 					msg: '收藏成功',
+			// 					duration: 2000,
+			// 					location: 'bottom'
+			// 				});
+			// 				console.log(999)
+			// 				//更改上个页面
+			// 				console.log(api.pageParam.from);
+			// 				api.execScript({
+			// 						name: api.pageParam.from,
+			// 						script: 'shoucangstatus('+gid+');'
+			// 				});
+			// 				//更改首页
+			// 				api.execScript({
+			// 						name: 'root',
+			// 						frameName:'index',
+			// 						script: 'getgoods();'
+			// 				});
+			//
+			// 			} else {
+			// 				api.toast({
+			// 					msg: '收藏失败',
+			// 					duration: 2000,
+			// 					location: 'bottom'
+			// 				});
+			// 			}
+			//
+			// 		} else {
+			// 			// alert( JSON.stringify( err ) );
+			// 		}
+			// 	});
+			//
+			// }
+
+		});
+	</script>
+</body>
+
+</html>

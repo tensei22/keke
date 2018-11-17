@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">修改密码</h1>
+		</header>
+		<div class="header_counter">
+			<ul class="xiugai_mima">
+				<li class="mui-input-row">
+			        <input type="password" class="mui-input-password" id="oldpasswd" placeholder="请输入当前密码">
+				</li>
+				<li class="mui-input-row">
+			        <input type="password" class="mui-input-password" id="newpasswd" placeholder="请输入新密码(6~12位)">
+				</li>
+			</ul>
+			<button class="duihuan_button margin_top" id="submit">提交</button>
+		</div>
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js" ></script>
+		<script type="text/javascript" src="../js/mui.min.js" ></script>
+		<script src="../js/api.js" charset="utf-8"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script type="text/javascript">
+			var uid;
+			api_init = function () {
+			uid=$api.getStorage("userId");
+			}
+			$(function(){
+				$('#submit').click(function(){
+						var oldpwd = $('#oldpasswd').val();
+						var newpwd = $('#newpasswd').val();
+
+						if (oldpwd=='' || newpwd == '') {
+							api.toast({
+							    msg: '请填写完整信息',
+							    duration: 2000,
+							    location: 'bottom'
+							});
+							return false;
+						}
+						if (newpwd.length < 6 || newpwd.length > 12) {
+							api.toast({
+							    msg: '新密码格式不正确',
+							    duration: 2000,
+							    location: 'bottom'
+							});
+							return false;
+						}
+
+						api.ajax({
+							url: apis + 'manage/up_passd',
+							method: 'post',
+							data: {
+								values: {
+									uid: uid,
+									old_pad: oldpwd,
+									new_pad: newpwd,
+								}
+							}
+						}, function(ret, err){
+							console.log(JSON.stringify(ret));
+							api.toast({
+								msg: ret.msg,
+								duration: 2000,
+								location: 'bottom'
+							});
+							if (ret.code == 1) {
+								//清楚本地存储的用户数据
+								setTimeout(function(){
+									api.closeToWin({
+											name: 'root'
+									});
+								},800)
+
+							}
+						})
+
+				});
+			})
+		</script>
+	</body>
+</html>

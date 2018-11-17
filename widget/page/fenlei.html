@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>分类</title>
+	<link rel="stylesheet" href="../css/swiper.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style>
+		.mui-row.mui-fullscreen>[class*="mui-col-"] {
+			height: 100%;
+		}
+
+		.mui-content {}
+
+		.mui-col-xs-3,
+		.mui-control-content {
+			overflow-y: auto;
+			height: 100%;
+		}
+
+		.gaoguang_box {
+			width: 100%;
+			overflow: hidden;
+		}
+
+		.mui-segmented-control.mui-segmented-control-inverted .mui-control-item {
+			border-right: 1px solid #ccc;
+		}
+
+		.mui-segmented-control .mui-control-item {
+			line-height: 50px;
+			width: 100%;
+			background: #fff;
+			border-right: 1px solid #ccc
+		}
+
+		.mui-segmented-control.mui-segmented-control-inverted.mui-segmented-control-vertical .mui-control-item,
+		.mui-segmented-control.mui-segmented-control-inverted.mui-segmented-control-vertical .mui-control-item.mui-active {
+			border-bottom: 1px solid #e6e6e6;
+			border-right: 0;
+		}
+
+		.mui-segmented-control.mui-segmented-control-inverted .mui-control-item.mui-active {
+			background-color: #f6f8f9;
+			border-right: 0;
+			/*border-left: 2px solid #d93b30;*/
+			border-bottom: 0;
+			color: #fb7299;
+		}
+
+		.mui-bar-nav~.mui-content {
+			padding-top: 54px;
+		}
+		.remen_box{width: 100%;overflow: hidden;border-top: 1px dashed #ccc;position: absolute;bottom: 10%;}
+		.remen_box h1{margin: 20px 0 0 0;padding: 0;font-size: 16px;color: #1a1a1a;font-weight: normal;}
+		.remen_box .remen_list{width: 100%;overflow: hidden;margin-top: 20px;}
+		.remen_box .remen_list span{display: block;width: calc(50% - 10px);float: left;overflow: hidden;margin-bottom: 15px;}
+		.remen_box .remen_list span:nth-child(even){float: right;}
+		.remen_box .remen_list span p{float: left;font-size: 12px;color: rgb(118,118,118);}
+		.remen_box .remen_list span p.red{color: #fb7299;}
+		.remen_box .remen_list span p:nth-child(2){width: calc(100% - 26px);margin-left: 10px;color: rgb(118,118,118);overflow: hidden;text-overflow:ellipsis;white-space: nowrap;}
+
+
+	</style>
+</head>
+
+<body>
+	<!--头 -->
+	<!-- <header class="mui-bar mui-bar-nav sousuo">
+
+		<h1 class="mui-title ">分类</h1>
+	</header> -->
+	<header class="mui-bar mui-bar-nav index_seach">
+		<h1 class="mui-title search sousuo_yemian"><i class="iconfont icon-sousuo"></i><input class="plad" value="搜索商品关键词/关键字"  readonly="readonly"></h1>
+	</header>
+
+	<!--   content  -->
+	<div class="mui-content mui-row mui-fullscreen">
+		<div class="mui-col-xs-3" style="width: 26%;">
+			<div id="segmentedControls" class="mui-segmented-control mui-segmented-control-inverted mui-segmented-control-vertical">
+			  <!-- <a class="mui-control-item mui-active" href="#content1">食品酒水</a>
+					<a class="mui-control-item" href="#content2">家居日用</a>
+					<a class="mui-control-item" href="#content3">食品酒水</a>
+					<a class="mui-control-item" href="#content4">家居日用</a>
+					<a class="mui-control-item" href="#content5">食品酒水</a>
+					<a class="mui-control-item" href="#content6">家居日用</a>
+					<a class="mui-control-item" href="#content7">钟表首饰</a>
+					<a class="mui-control-item" href="#content8">数码家电</a>
+					<a class="mui-control-item" href="#content9">礼品箱包</a>
+					<a class="mui-control-item" href="#content10">汽车用品</a> -->
+
+			</div>
+		</div>
+		<div id="segmentedControlContents" class="mui-col-xs-9">
+			<div id="item1" class="mui-control-content mui-active ">
+				<ul>
+					<!-- <li>
+						<p>二级分类</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li>
+					<li>
+						<p>卸妆</p>
+					</li> -->
+					<!-- <li>
+						<p>卸妆</p>
+					</li> -->
+				</ul>
+				<div class="remen_box">
+						<h1>热门推荐</h1>
+						<div class="remen_list">
+							<!-- <span>
+								<p class="red">1</p>
+								<p>馈赠四级心</p>
+							</span>
+							<span>
+								<p>2</p>
+								<p>馈赠四级心</p>
+							</span>
+							<span>
+								<p>3</p>
+								<p>馈赠四级心</p>
+							</span>
+							<span>
+								<p>4</p>
+								<p>馈赠四级心</p>
+							</span>
+							<span>
+								<p>5</p>
+								<p>馈赠四级心</p>
+							</span>
+							<span>
+								<p>6</p>
+								<p>馈赠四级心4fdg gfd  dfsa bdash baskd </p>
+							</span> -->
+						</div>
+				</div>
+
+
+			</div>
+			<div id="item2" class="mui-control-content">
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script>
+		mui.init({
+			swipeBack: true //启用右滑关闭功能
+		});
+		mui.plusReady(function() {
+			var parm = plus.webview.currentWebview().parm
+			//console.log(JSON.stringify(parm))
+		})
+
+		function api_init() {
+			getData();
+		}
+
+		function getData() {
+			api.ajax({
+				url: apis + 'index/cates',
+				method: 'get',
+				data: {
+					values: {
+						cateid: 0
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//  alert( JSON.stringify( ret ) );
+					html = '';
+					if (!ret.data == '') {
+						$.each(ret.data, function(k, v) {
+							if (k == 0) {
+								var id=v.id;
+								clickfenlei(id);
+							}
+							html += '<a class="mui-control-item" href="#content1" onclick="clickfenlei(' + v.id + ')">' + v.c_name + '</a>';
+						})
+
+						$("#segmentedControls").html(html);
+						var controls = document.getElementById("segmentedControls");
+						var contents = document.getElementById("segmentedControlContents");
+
+						//默认选中第一个
+						controls.querySelector('.mui-control-item').classList.add('mui-active');
+						contents.querySelector('.mui-control-content').classList.add('mui-active');
+
+
+					} else {
+
+					}
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+			});
+
+			//热门推荐
+				api.ajax({
+				    url: apis+'index/feilei_hot',
+				    method: 'get',
+				    data: {
+
+
+				    }
+				},function(ret, err){
+				    if (ret) {
+				        //console.log( JSON.stringify( ret ) );
+								if(ret.code==1){
+									var html='';
+									if(ret.data.data!=''){
+										$.each(ret.data.data,function(k,v){
+											k=k+1;
+											if(k<4){
+													html+='<span class="hot_list" dataid="'+v.id+'"><p class="red">'+k+'</p><p>'+v.s_name+'</p></span>';
+											}else {
+													html+='<span class="hot_list" dataid="'+v.id+'"><p>'+k+'</p><p>'+v.s_name+'</p></span>';
+											}
+
+										})
+
+										$(".remen_list").append(html);
+									}
+								}
+				    } else {
+				        //alert( JSON.stringify( err ) );
+				    }
+				});
+
+		}
+		//
+		$(".remen_list").on("click", '.hot_list',function() {
+			var sid=$(this).attr('dataid');
+
+			api.openWin({
+				name: 'sp_detail',
+				url: '../index/sp_detail.html',
+				pageParam: {sid:sid},
+			});
+		})
+		//
+		$(".sousuo_yemian").on("click", function() {
+			api.openWin({
+				name: 'search',
+				url: '../index/seach.html',
+
+			});
+		})
+		function clickfenlei(id) {
+
+			api.ajax({
+				url: apis + 'index/cates',
+				method: 'get',
+				data: {
+					values: {
+						cateid: id,
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+				//console.log( JSON.stringify( ret ) );
+					if (ret.data!='[]') {
+						var htmlss='';
+					//	$("#item1 ul").empty();
+						$.each(ret.data, function(k, v) {
+
+							htmlss += '<li onclick="goerjiList(' + v.id + ')"><p>' + v.c_name + '</p></li>';
+
+						})
+						$("#item1 ul").html(htmlss);
+
+
+
+					}
+
+				} else {
+
+				}
+			});
+		}
+		function goerjiList(id)
+		{
+			api.openWin({
+			    name: 'erji_list',
+			    url: '../index/erji_list.html',
+			    pageParam: {
+			        cateid: id
+			    }
+			});
+
+		}
+	</script>
+</body>
+
+</html>

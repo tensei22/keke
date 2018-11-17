@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">个人信息</h1>
+			<a class="mui-icon mui-pull-right" id="saveInfo"><p>保存</p></a>
+		</header>
+		<div class="header_counter">
+			<ul class="info_box">
+				<li>
+					<p>头像</p>
+					<span class="head_box">
+						<img src="../img/sp_detail.jpg" id="headimg" />
+					</span>
+				</li>
+				<li>
+					<p>等级</p>
+					<span id="grade">
+
+					</span>
+				</li>
+				<li>
+					<p>昵称</p>
+					<span class="newact" url="./xiugai_name.html" id="nicheng">
+
+					</span>
+				</li>
+				<!-- <li>
+					<p>手机号</p>
+					<span class="newact" url="./xiugai_phone.html" id="phone">
+
+					</span>
+				</li>
+				<li>
+					<p>QQ邮箱</p>
+					<span class="newact" url="./xiugai_email.html" id="email">
+
+					</span>
+				</li> -->
+			</ul>
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script>
+		var nicheng = '',uid,headimg,source=null;
+
+		uid=$api.getStorage("userId");
+		api_init = function () {
+
+			getInfo(source);
+
+
+		}
+
+		function getInfo(source) {
+		 
+			api.ajax({
+				url: apis + 'manage/userinfo',
+				method: 'get',
+				data: {
+					values: {
+						uid: uid
+					}
+				}
+			}, function(ret, err) {
+				//console.log(JSON.stringify(ret))
+				if (ret.code == 1) {
+					nicheng = ret.data.nicheng;
+					$('#nicheng').text(nicheng);
+					$('#headimg').attr('src',iapi + ret.data.headimg);
+
+					$('#grade').text(ret.data.name);
+					var html='';
+					if(source){
+
+									$(".append").remove();
+					}
+					if(ret.data.phone){
+						html+="<li id='phone' class='append'><p>手机号</p><span>"+ret.data.phone+"</span></li>";
+
+					}else {
+						html+="<li id='email' class='append'><p>QQ邮箱</p><span >"+ret.data.email+"</span></li>";
+
+					}
+
+					$(".info_box").append(html);
+					$("#phone").on("click",function(){
+						api.openWin({
+								name: 'xiugai_phone',
+								url: './xiugai_phone.html',
+
+						});
+
+					})
+					$("#email").on('click',function(){
+						api.openWin({
+								name: 'email',
+								url: './xiugai_email.html',
+
+						});
+
+					})
+					// $('#phone').text(ret.data.phone);
+					// $('#email').text(ret.data.email);
+				}
+			});
+		}
+
+
+		function getPicture(type) {
+			// api.showProgress({
+			//     style: 'default',
+			//     animationType: 'fade',
+			//     title: '努力加载中...',
+			//     text: '请稍候...',
+			//     modal: false
+			// });
+
+				api.getPicture({
+						sourceType: type,
+						mediaValue: 'pic',
+						destinationType: 'url',
+				}, function(ret, err) {
+						if (ret) {
+								//console.log(ret.data);
+								if(ret.data){
+									api.showProgress({
+											style: 'default',
+											animationType: 'fade',
+											title: '努力加载中...',
+											text: '请稍候...',
+											modal: false
+									});
+									api.openWin({
+											name: 'clip',
+											url: './clip.html',
+											pageParam: {
+													name: 'clip',
+													from: '../my/info.html',
+													file: ret.data
+											}
+									});
+									setTimeout(function(){
+										api.hideProgress();
+									},2000)
+
+
+								}
+
+						} else {
+								//console.log(JSON.stringify(err));
+						}
+				});
+		}
+		function upload(path) {
+
+
+				api.showProgress({
+						style: 'default',
+						animationType: 'fade',
+						title: '正在上传...',
+						text: '请稍候...',
+						modal: false
+				});
+				//console.log(path);
+
+
+				api.ajax({
+						url: apis + 'upload/img',
+						method: 'post',
+						data: {
+								values: {
+										uid: $api.getStorage('userId'),
+
+								},
+								files: {
+										imagefile: path,
+								}
+						}
+				}, function(ret, err) {
+
+						if (ret) {
+
+							//	console.log(JSON.stringify(ret));
+								$('.head_box img').attr('src', iapi + ret.data);
+										headimg=ret.data;
+								api.closeWin({
+										name: 'clip'
+								});
+								api.hideProgress();
+						} else {
+								//console.log(JSON.stringify(err));
+						}
+				});
+		}
+		$(function(){
+			//更换头像
+			$('.head_box').on('click', function() {
+					//console.log('tap headimg');
+					api.actionSheet({
+							title: '上传图片',
+							cancelTitle: '取消',
+							buttons: ['拍照', '图库']
+					}, function(ret, err) {
+							if (ret) {
+									type = ['library', //图片库
+											'camera', //相机
+											'album' //相册
+									]
+									console.log(ret.buttonIndex);
+									if (ret.buttonIndex < 3)
+											getPicture(type[ret.buttonIndex]);
+							} else {
+									console.log(JSON.stringify(err));
+							}
+					});
+			});
+			//保存数据
+			$('#saveInfo').click(function() {
+					var new_nicheng = $('#nicheng').val();
+					//console.log(new_nicheng)
+
+					api.ajax({
+						url: apis + 'manage/up_nicheng',
+						method: 'post',
+						data: {
+							values: {
+								uid: uid,
+								nicheng: new_nicheng,
+								headimg:headimg
+							}
+						}
+					}, function(ret,err){
+						console.log(JSON.stringify(ret));
+						if(ret.code==1){
+							api.toast({
+									msg: ret.msg,
+									duration: 2000,
+									location: 'bottom'
+							});
+
+								api.execScript({
+										name: 'root',
+										frameName: 'my',
+										script: 'getInfo();'
+								});
+								setTimeout(function() {
+
+									api.closeWin();
+								}, 500);
+						}else {
+							api.toast({
+									msg: '保存失败',
+									duration: 2000,
+									location: 'bottom'
+							});
+						}
+
+
+
+
+
+
+
+					})
+			})
+		})
+		</script>
+	</body>
+</html>

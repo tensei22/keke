@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+			<style>
+				.sp_detail_box .detail_shuom{
+					padding:0px 10px 15px 10px;
+				}
+			</style>
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left event_back logo   "><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">订单详情</h1>
+		</header>
+		<div class="header_counter order_detail_box sp_detail_box">
+			<div class="order_detail_title">
+				<span>
+					<p>下单时间：</p>
+					<p id="ordertime"> </p>
+				</span>
+				<span>
+					<p>付款时间：</p>
+					<p id="paytime"> </p>
+				</span>
+				<span>
+					<p>订单编码：</p>
+					<p id="ordernum"> </p>
+				</span>
+			</div>
+			<div class="detail_shuom">
+				<h1>订单内容</h1>
+				<p class="con" id="s_name">  </p>
+				<h1>相关说明</h1>
+				<ul id="content">
+					<!-- <li>回城券*10</li>
+					<li>悟道仙珠*10</li>
+					<li>悟道圣珠*5</li>
+					<li>琥珀玄冰*5</li>
+					<li>龟灵玄冰*5</li>
+					<li>太极玄丹*2</li>
+					<li>无根神水*2 </li>
+					<li>高级元魂珠*</li>
+					<li>时装（弥云凉装）永久*1</li> -->
+				</ul>
+			</div>
+			<div class="zhifu_fama">
+				<ul>
+					<!-- <li>
+						<p>QQ账号</p>
+						<input type="text" placeholder="请输入游戏账号" value="155341236744" readonly="readonly"/>
+					</li>
+					<li>
+						<p>游戏账号</p>
+						<input type="text" placeholder="请输入游戏账号" value="155341236744@qq.com" readonly="readonly"/>
+					</li>
+					<li>
+						<p>游戏名称</p>
+						<input type="text" placeholder="请输入游戏账号" value="四季繁荣" readonly="readonly"/>
+					</li> -->
+				</ul>
+				<div class="beizhu">
+					<p>备注</p>
+					<textarea placeholder="备注内容~" id="remark" readonly="readonly"></textarea>
+				</div>
+			</div>
+			<div class="order_bottom">
+				<span>
+					<p>支付积分</p>
+					<p id="jifen"></p>
+				</span>
+				<span>
+					<p id="zhuangtai">状态</p>
+					<p id="p_status"></p>
+				</span>
+			</div>
+
+		</div>
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js" ></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script type="text/javascript" src="../js/mui.min.js" ></script>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script>
+		 var oid,code;
+
+		function api_init()
+		{
+		 oid=api.pageParam.oid;
+			getData();
+		}
+		function getData(){
+			api.ajax({
+					url: apis+'order/orderDetail',
+					method: 'post',
+					data: {
+							values: {
+									oid: oid
+							},
+					}
+			},function(ret, err){
+					if (ret) {
+						console.log(JSON.stringify( ret ));
+							$("#ordertime").text(ret.data.createtime);
+
+
+							$("#paytime").text(ret.data.p_createtime);
+							$("#ordernum").text(ret.data.ordernum);
+							$("#s_name").text(ret.data.s_name);
+							$("#content").html(ret.data.s_content);
+								$("#remark").text(ret.data.remark);
+
+								$("#jifen").text(ret.data.real_price);
+
+							html='';
+							if(ret.data.content!=''){
+								var str = ret.data.content.split(',');
+										str.pop();
+								$.each(str,function(k,v){
+									var strs =str[k].split(':');
+									console.log(strs[k]);
+									html+="<li><p>";
+											html+=strs[0]+":</p><input type='text'  value="+strs[1]+" readonly='readonly'/>";
+
+										html+="</li>";
+
+								})
+
+									$(".zhifu_fama ul").append(html);
+							}else {
+								$(".beizhu").remove();
+							}
+
+						if(ret.data.p_status==1){
+							//处理中
+
+										$("#p_status").text('处理中');
+						}else{
+									if(ret.data.o_type==1){
+									$("#zhuangtai").text('激活码');
+
+										$("#p_status").text(ret.data.j_name);
+										code=ret.data.j_name;
+										$("#p_status").append('<b style="color:#fb7299;margin-left:8px;" id="fuzhi">[复制]</b>');
+									}else {
+											$("#p_status").text('已完成');
+									}
+
+
+							//已完成
+						}
+
+						// $("#jihuoma").text(ret.data.j_name);
+						console.log( JSON.stringify( ret ) );
+					} else {
+							//alert( JSON.stringify( err ) );
+					}
+			});
+		}
+
+		$("#p_status").on('click','#fuzhi',function(){
+			var clipBoard = api.require('clipBoard');
+
+			clipBoard.set({
+					value: code
+			}, function(ret, err) {
+					if (ret) {
+
+							 api.toast({
+									 msg: '复制成功',
+									 duration: 2000,
+									 location: 'middle'
+							 });
+
+					} else {
+
+					}
+			});
+		})
+	</script>
+	</body>
+</html>

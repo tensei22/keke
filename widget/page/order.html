@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style>
+
+	</style>
+</head>
+
+<body style="background:#fff">
+	<!--头 -->
+	<header class="mui-bar mui-bar-nav">
+		<h1 class="mui-title">订单</h1>
+		<a class="mui-icon mui-pull-right"><i class="iconfont icon-sousuo" onclick="sousuoOrder()"></i></a>
+	</header>
+	<div class="header_counter order_box">
+		<div class="order_tab">
+			<span class="active" onclick="getData('all')">全部</span>
+			<span onclick="getData('npay')">待支付</span>
+			<span onclick="getData('pay')">处理中</span>
+			<span onclick="getData('end')">已完成</span>
+		</div>
+		<ul class="gongyong_list">
+			<!-- <li>
+					<span class="list_photo">
+						<img src="../img/list_photo.png"/>
+					</span>
+					<div class="list_conter">
+						<span>
+							<p>馈赠·四季繁歌新人豪礼</p>
+
+						</span>
+						<span>回城券·10悟道仙珠·10悟道仙珠</span>
+						<span>
+							<p><b>100</b>积分</p>
+							<p>后台兑换</p>
+							<p>去支付</p>
+						 加bed 按钮变灰
+						</span>
+					</div>
+				</li>
+				<li>
+					<span class="list_photo">
+						<img src="../img/list_photo.png"/>
+					</span>
+					<div class="list_conter">
+						<span>
+							<p>馈赠·四季繁歌新人豪礼</p>
+
+						</span>
+						<span>回城券·10悟道仙珠·10悟道仙珠</span>
+						<span>
+							<p><b>100</b>积分</p>
+							<p>后台兑换</p>
+							<p class="bed">已完成</p>
+						</span>
+					</div>
+				</li> -->
+
+
+		</ul>
+		<p id="nomore" style="display:none;text-align:center;margin-top:15px;">没有更多了</p>
+	</div>
+
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script>
+		var uid, page = 0,
+			tag = 'all',
+			noshow = 0,
+			pages;
+
+		function api_init() {
+			uid = $api.getStorage('userId');
+ 
+
+			$('.order_tab span').on('click', function() {
+				$(this).addClass('active').siblings().removeClass('active')
+			})
+			pages = 1; //来源 1本页面，0其他页面
+			getData(tag);
+			// api.setCustomRefreshHeaderInfo({
+			// 	bgColor: '#C0C0C0',
+			// 	isScale: true,
+			// 	image: {
+			// 	}
+			// }, function() {
+			// 	//下拉刷新被触发，自动进入加载状态，使用 api.refreshHeaderLoadDone() 手动结束加载中状态
+			// 	//下拉刷新被触发，使用 api.refreshHeaderLoadDone() 结束加载中状态
+			// 	// api.addEventListener({
+			// 	// 	name: 'shake'
+			// 	// }, function(ret, err) {
+			// 	// 	api.refreshHeaderLoadDone()
+			// 	// });
+			//
+			// 	api.refreshHeaderLoadDone()
+			// });
+
+
+		}
+		var status;
+
+		function getData(s, pages = 1) {
+			uid = $api.getStorage('userId');
+
+
+			if (pages != 1) {
+				api.removeEventListener({
+					name: 'scrolltobottom'
+				});
+				$(".order_tab").children(":first").addClass('active').siblings().removeClass('active');
+
+				$('.gongyong_list').empty();
+				page = 1;
+				$('#nomore').hide();
+				console.log(page);
+			} else {
+				if (s != tag) {
+					api.removeEventListener({
+						name: 'scrolltobottom'
+					});
+					$('.gongyong_list').empty();
+					page = 1;
+					$('#nomore').hide();
+				} else {
+					page++;
+
+				}
+				//console.log(page);
+			}
+
+
+			tag = s;
+			var status = null;
+			switch (s) {
+				case 'all':
+					status = 4;
+					break;
+				case 'npay':
+					status = 0;
+					break;
+				case 'pay':
+					status = 1;
+					break;
+				case 'end':
+					status = 2;
+					break;
+				default:
+					break;
+			}
+
+			api.ajax({
+				url: apis + 'order/index',
+				method: 'get',
+				data: {
+					values: {
+						page: page,
+						uid: uid,
+						p_status: status
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					if (ret.code == 1) {
+
+						if (!ret.data == '') {
+							html = '';
+							var orders = ret.data.data;
+
+							//console.log( JSON.stringify( ret ) );
+							show_tankuang('加载中', '请稍后...');
+							if (orders.length < 5) {
+
+								if (orders.length < 1 && page == 1) {
+									html += '<div class="zanwu"  style=" text-align:center;margin-top:15px;">暂无数据</div>';
+									$('.gongyong_list').empty().append(html);
+									noshow = 1;
+									//	console.log(noshow);
+								} else {
+									// console.log(noshow);
+									if (noshow != 1) {
+										$('#nomore').show();
+									}
+								}
+								noshow = 0;
+								api.removeEventListener({
+									name: 'scrolltobottom'
+								});
+								api.hideProgress();
+								if (orders.length == 0) {
+									return false;
+								}
+
+							} else {
+
+								if (page == 1) {
+
+									api.addEventListener({
+										name: 'scrolltobottom',
+										extra: {
+											threshold: 10 //设置距离底部多少距离时触发，默认值为0，数字类型
+										}
+									}, function(ret, err) {
+										setTimeout(getData(tag), 1000);
+									});
+
+								}
+							}
+							$.each(ret.data.data, function(k, v) {
+								var p_status = v.p_status;
+								if (p_status == 0) {
+									status = '<p>去支付</p>';
+								} else if (p_status == 1) {
+									status = '<p>处理中</p>';
+								} else {
+									status = '<p class="bed">已完成</p>';
+								}
+
+								html += "<li onclick='order(" + p_status + "," + v.id + ")'><span class='list_photo'><img src=" + iapi + v.s_pic + " /></span><div class='list_conter'><span><p>" + v.s_name + "</p>";
+								html += '</span><span>' + v.s_jianjie + '</span><span><p><b>100</b>积分</p><p>' + v.rules_name + '</p>' + status + '</span></div></li>';
+							})
+							$(".gongyong_list").append(html);
+							api.hideProgress();
+						}
+					}
+
+
+				} else {
+
+				}
+			});
+
+		}
+//
+
+ //
+
+
+
+
+
+		function order(p_status, oid) {
+
+			if (p_status == 0) {
+				api.openWin({
+					name: 'zaixian_zhifu',
+					url: '../index/zaixian_zhifu.html',
+					pageParam: {
+						oid: oid,
+					}
+				});
+			} else if (p_status == 1) {
+				api.openWin({
+					name: 'order_chuli',
+					url: '../order/order_detail.html',
+					pageParam: {
+						oid: oid,
+					}
+				});
+			} else {
+				api.openWin({
+					name: 'order_wancheng',
+					url: '../order/order_detail.html',
+					pageParam: {
+						oid: oid,
+					}
+				});
+			}
+		}
+
+		function sousuoOrder() {
+			api.openWin({
+				name: 'order_search',
+				url: '../index/order_search.html',
+			});
+		}
+	</script>
+</body>
+
+</html>

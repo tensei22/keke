@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+</head>
+ <style media="screen">
+ 	.index_box{margin-top:44px}
+ </style>
+<body style="background:#fff">
+	<!--头 -->
+	<header class="mui-bar mui-bar-nav">
+		<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+		<h1 class="mui-title"> </h1>
+	</header>
+	<div class="header_counter h_scroll">
+		<div class="index_box">
+			<!--推荐产品-->
+			<div class="tuijian_box">
+				<div class="position_box position_box_fiexd">
+					<ul class="sp_list_top">
+						<li class="fan color_list_top" datatype="0"><span>综合排序</span></li>
+						<li class="fan" datatype="1"><span>热度</span></li>
+						<li class="fan" datatype="2"><span>时间</span></li>
+						<li class="show_sx"><span>筛选</span><i class="iconfont icon-ziyuan"></i></li>
+					</ul>
+
+				</div>
+				<ul class="gongyong_list">
+					<!-- <li>
+							<span class="list_photo">
+								<img src="../img/list_photo.png"/>
+							</span>
+							<div class="list_conter">
+								<span>
+									<p>馈赠·四季繁歌新人豪礼</p>
+									<i class="iconfont icon-shoucang1"></i>
+							  图标变色 加 class active   换class icon-shoucang
+								</span>
+								<span>回城券·10悟道仙珠·10悟道仙珠</span>
+								<span>
+									<p><b>100</b>积分</p>
+									<p>即时兑换</p>
+								</span>
+							</div>
+						</li> -->
+
+
+
+				</ul>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="zhezhao">
+		<h1 class="title">分类</h1>
+		<ul class="zhezhao_main" id="yiji">
+			<!-- <li >一级分类1</li>
+			<li>一级分类2</li><li>一级分类3</li>
+			<li>一级分类4</li> -->
+		</ul>
+		<h1 class="title">分类</h1>
+		<ul class="zhezhao_main" id="erji">
+			<!-- <li>二级分类1</li>
+			<li>二级分类2</li><li>二级分类3</li>
+			<li>二级分类4</li>
+			<li>二级分类</li> -->
+		</ul>
+		<h1 class="title">关键字</h1>
+		<input class="gjz_input" type="text" id="keyWord" />
+		<div class="tk_button">
+			<span data-types=1>重置</span>
+			<span data-types=2>确定</span>
+		</div>
+	</div>
+	<div class="zhezhao_bj"></div>
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script>
+		var cid, uid, yijiId, erjiId, page = 0,
+			gtype = '';
+		uid = $api.getStorage('userId');
+
+		function api_init() {
+			yijiId = api.pageParam.yijiId;
+			erjiId = api.pageParam.erjiId;
+			keyWord = api.pageParam.keyWord;
+			cid = erjiId;
+			getname();
+			getgoodsList(gtype);
+			getcates();
+		}
+
+		function getname() {
+			api.ajax({
+				url: apis + 'index/cate_name',
+				method: 'get',
+				data: {
+					values: {
+						cateid: yijiId,
+						catesid: erjiId,
+
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//  alert( JSON.stringify( ret ) );
+					$(".mui-title").text(ret.data);
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+			});
+
+		}
+
+		//获取商品列表
+		function getgoodsList(ordertype) {
+
+			if (ordertype != gtype) {
+				api.removeEventListener({
+					name: 'scrolltobottom'
+				});
+				$('.gongyong_list').empty();
+				page = 1;
+				 $('#nomore').empty();
+			} else {
+				page++;
+			}
+			gtype = ordertype;
+
+			api.ajax({
+				url: apis + 'shop/search',
+				method: 'post',
+				data: {
+					values: {
+						cates: cid,
+						name: keyWord,
+						ordertype: ordertype,
+						page: page
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+
+					var goods = ret.data.data;
+
+					var html = '';
+					show_tankuang('加载中', '请稍后...');
+					if (goods.length < 5) {
+
+						if (goods.length < 1 && page == 1) {
+							html += '<div class="zanwu" style=" text-align:center;margin-top:15px;">暂无数据</div>';
+							$('.gongyong_list').empty().append(html);
+						} else {
+
+							//$('#nomore').show();
+						//
+						}
+						api.removeEventListener({
+							name: 'scrolltobottom'
+						});
+						api.hideProgress();
+						if (goods.length == 0) {
+							return false;
+						}
+
+					} else {
+
+						if (page == 1) {
+
+							api.addEventListener({
+								name: 'scrolltobottom',
+								extra: {
+									threshold: 10 //设置距离底部多少距离时触发，默认值为0，数字类型
+								}
+							}, function(ret, err) {
+
+
+								setTimeout(getgoodsList(gtype), 1000);
+							});
+						}
+					}
+					if (!goods == '') {
+						$.each(goods, function(k, v) {
+
+							if (uid) {
+								api.ajax({
+									url: apis + 'manage/is_shoucang',
+									method: 'get',
+									data: {
+										values: {
+											uid: uid,
+											gid: v.id,
+										},
+
+									}
+								}, function(ret, err) {
+									if (ret) {
+										//console.log(JSON.stringify(ret));
+
+										if (ret.code == 1) {
+											html = "<li  data-id='" + v.id + "' data-type=" + 1 + "><span class='list_photo' onclick='goodsdetails(" + v.id + ")'><img src=" + iapi + v.s_pic + " /></span>";
+											html += "<div class='list_conter'><span><p onclick='goodsdetails(" + v.id + ")'>" + v.s_name + "</p>";
+											html += "	<i  class='iconfont active icon-shoucang'></i>";
+											html += "</span><span onclick='goodsdetails(" + v.id + ")'>" + v.s_jianjie + "</span><span><p onclick='goodsdetails(" + v.id + ")'><b>" + v.s_jifen + "</b>积分</p><p onclick='goodsdetails(" + v.id + ")'>" + v.rules_name +
+												"</p></span></div></li>";
+										} else {
+											html = "<li  data-id='" + v.id + "' data-type=" + 2 + "><span class='list_photo' onclick='goodsdetails(" + v.id + ")'><img src=" + iapi + v.s_pic + " /></span>";
+											html += "<div class='list_conter'><span><p onclick='goodsdetails(" + v.id + ")'>" + v.s_name + "</p>";
+											html += "	<i  class='iconfont icon-shoucang1'></i>";
+											html += "</span><span onclick='goodsdetails(" + v.id + ")'>" + v.s_jianjie + "</span><span><p onclick='goodsdetails(" + v.id + ")'><b>" + v.s_jifen + "</b>积分</p><p onclick='goodsdetails(" + v.id + ")'>" + v.rules_name +
+												"</p></span></div></li>";
+										}
+
+										$(".gongyong_list").append(html);
+									}
+								});
+							} else {
+								html = "<li data-id='" + v.id + "'><span class='list_photo' onclick='goodsdetails(" + v.id + ")'><img src=" + iapi + v.s_pic + " /></span>";
+								html += "<div class='list_conter'><span><p onclick='goodsdetails(" + v.id + ")'>" + v.s_name + "</p>";
+								html += "<i  class='iconfont icon-shoucang1'></i>";
+								html += "</span><span onclick='goodsdetails(" + v.id + ")'>" + v.s_jianjie + "</span><span><p onclick='goodsdetails(" + v.id + ")'><b>" + v.s_jifen + "</b>积分</p><p onclick='goodsdetails(" + v.id + ")'>" + v.rules_name +
+									"</p></span></div></li>";
+
+								$(".gongyong_list").append(html);
+
+							}
+
+
+						})
+							if (goods.length < 5 ) {
+									$('.gongyong_list').after('<p id="nomore" style="text-align:center; margin-top:15px;">没有更多了</p>');
+							}
+
+						api.hideProgress();
+
+
+					}
+
+
+				} else {
+
+				}
+			});
+		}
+
+
+		function goodsdetails(id) {
+			api.ajax({
+				url: apis + 'shop/shop_hot',
+				method: 'get',
+				data: {
+					values: {
+						gid: id
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					//alert( JSON.stringify( ret ) );
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+			});
+
+			api.openWin({
+				name: 'goodsDetail',
+				url: '../index/sp_detail.html',
+				pageParam: {
+					sid: id,
+					from: 'shaixuan_list',
+				}
+			});
+		}
+		//排序切换
+		var datatype = 0;
+		$('.sp_list_top li.fan').click(function() {
+
+						$('#nomore').empty();
+
+
+			if ($(this).hasClass('color_list_top')) {
+				$(this).removeClass('color_list_top')
+			} else {
+				$(this).addClass('color_list_top').siblings().removeClass('color_list_top');
+
+				//防止重复点击刷新
+			if ($(this).attr('datatype') != datatype) {
+				datatype = $(this).attr('datatype');
+			} else {
+				return;
+			}
+
+				var ordertype = $(this).attr('datatype');
+
+				getgoodsList(ordertype);
+
+
+			}
+		});
+		$('.zhezhao_bj').click(function() {
+			$('.zhezhao').toggle();
+			$('.zhezhao_bj').toggle()
+			$('.show_sx').removeClass('active')
+		})
+		$('.show_sx').click(function() {
+			$(this).toggleClass('active')
+			$('.zhezhao').toggle();
+			$('.zhezhao_bj').toggle()
+			var carInfoCon = $('.position_box');
+			var $scroll_top = carInfoCon.offset().top;
+
+		})
+
+		$('.tk_button span').click(function() {
+			$('.show_sx').toggleClass('active');
+
+				// var jinzhi = 0;
+				// document.addEventListener("touchmove", function(e) {
+				// 	if (jinzhi == 0) {
+				//
+				// 		e.preventDefault();
+				// 		e.stopPropagation();
+				// 	}
+				// }, false);
+			if ($(this).attr('data-types') == 2) {
+
+				var yiji = $("#yiji .active").attr('cateid');
+				var erji = $("#erji .active").attr('cateid');
+				var keyWord = '';
+				keyWord = $("#keyWord").val();
+				if (!yiji) {
+					api.toast({
+						msg: '请选择一级分类',
+						duration: 2000,
+						location: 'bottom'
+					});
+					return;
+				}
+				if (!erji) {
+					api.toast({
+						msg: '请选择二级分类',
+						duration: 2000,
+						location: 'bottom'
+					});
+					return;
+				}
+				$('.zhezhao').toggle();
+				$('.zhezhao_bj').toggle()
+				erjiId = $("#erji .active").attr('cateid');
+				cid = erjiId;
+				page = 0;
+				$('.gongyong_list').empty();
+					$('#nomore').empty();
+				getgoodsList('');
+
+				yijiId = $("#yiji .active").attr('cateid');
+				getname();
+
+				var carInfoCon = $('.position_box');
+				var $scroll_top = carInfoCon.offset().top;
+				$('html,body').animate({
+					scrollTop: $scroll_top
+				});
+
+				api.openWin({
+					name: 'shaixuan_list',
+					url: '../index/shaixuan_list.html',
+					pageParam: {
+						yijiId: yijiId,
+						erjiId: erjiId,
+						keyWord: keyWord
+					}
+				});
+
+
+			} else {
+				//重置
+				$('.zhezhao').toggle();
+				$('.zhezhao_bj').toggle()
+				var carInfoCon = $('.position_box');
+				var $scroll_top = carInfoCon.offset().top;
+				$('html,body').animate({
+					scrollTop: $scroll_top
+				});
+			}
+
+		});
+
+		$('.gongyong_list').on('click', 'li .list_conter i', function() {
+			var gid = $(this).parent().parent().parent().attr('data-id');
+			var a = $(this);
+			if (a.hasClass('icon-shoucang1')) {
+				//	console.log(111);
+				//没有收藏改为收藏
+				a.removeClass('icon-shoucang1');
+				a.toggleClass('active');
+				a.addClass('icon-shoucang');
+				if (!uid) {
+					api.toast({
+						msg: '请登录后收藏',
+						duration: 2000,
+						location: 'bottom'
+					});
+					return;
+				}
+				api.ajax({
+					url: apis + 'manage/collect',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid,
+							gid: gid,
+							status: 0
+						},
+
+					}
+				}, function(ret, err) {
+					if (ret) {
+						//console.log(JSON.stringify(ret));
+						if (ret.code == 1) {
+							api.toast({
+								msg: '收藏成功',
+								duration: 2000,
+								location: 'bottom'
+							});
+						} else {
+							api.toast({
+								msg: '收藏失败',
+								duration: 2000,
+								location: 'bottom'
+							});
+						}
+
+					} else {
+
+					}
+				});
+			} else {
+				//console.log(222);
+				//收藏改为没有收藏
+				a.toggleClass('active');
+				a.removeClass('icon-shoucang');
+				a.addClass('icon-shoucang1');
+				api.ajax({
+					url: apis + 'manage/collect',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid,
+							gid: gid,
+							status: 1
+						},
+
+					}
+				}, function(ret, err) {
+					if (ret) {
+						if (ret.code == 1) {
+							api.toast({
+								msg: '取消成功',
+								duration: 2000,
+								location: 'bottom'
+							});
+						} else {
+							api.toast({
+								msg: '取消失败',
+								duration: 2000,
+								location: 'bottom'
+							});
+						}
+
+					} else {
+
+					}
+				});
+			}
+
+		});
+
+		function getcates() {
+			api.ajax({
+				url: apis + 'index/cates',
+				method: 'get',
+				data: {
+
+				}
+			}, function(ret, err) {
+
+				if (ret) {
+					var cate = ret.data;
+
+					var htmls = '';
+					$.each(cate, function(k, v) {
+						if (k == 0) {
+							var id = v.id;
+							yijiId = v.id;
+							geterjicates(id);
+							htmls = "<li cateid=" + v.id + " class='active yijicate'>" + v.c_name + "</li>";
+						} else {
+							htmls = "<li cateid=" + v.id + ">" + v.c_name + "</li>";
+						}
+
+						$("#yiji").append(htmls);
+
+
+					})
+					$("#yiji li").on('click', function() {
+
+						$(this).toggleClass('active');
+						$(this).siblings().removeClass('active');
+						var cateid = $(this).attr('cateid');
+						geterjicates(cateid);
+
+					})
+
+				} else {
+
+				}
+			});
+
+		}
+		//获取二级分类
+		function geterjicates(id) {
+
+			api.ajax({
+				url: apis + 'index/cates',
+				method: 'get',
+				data: {
+					values: {
+						cateid: id
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					$("#erji").empty();
+					htmlss = '';
+					$.each(ret.data, function(k, v) {
+						htmlss += "<li cateid=" + v.id + ">" + v.c_name + "</li>";
+					})
+					$("#erji").append(htmlss);
+					$("#erji li").on('click', function() {
+
+						$(this).toggleClass('active');
+						$(this).siblings().removeClass('active');
+						erjiId = $(this).attr('cateid');
+
+					})
+				} else {
+
+				}
+			});
+
+		}
+		//其他页面改变收藏状态调用这个方法
+		function shoucangstatus(id) {
+
+			var a=$('.gongyong_list li[data-id=' + id + '] .list_conter i');
+
+			// $('.gongyong_list li[data-id=' + id + '] .list_conter i').toggleClass('icon-shoucang1');
+			// $('.gongyong_list li[data-id=' + id + '] .list_conter i').toggleClass('active');
+			// $('.gongyong_list li[data-id=' + id + '] .list_conter i').toggleClass('icon-shoucang');
+
+			if (a.hasClass('icon-shoucang1')) {
+				  //console.log(111);
+				//没有收藏改为收藏
+				a.removeClass('icon-shoucang1');
+				a.toggleClass('active');
+				a.addClass('icon-shoucang');
+			} else {
+		  //console.log(222);
+						//收藏改为没有收藏
+				a.toggleClass('active');
+				a.removeClass('icon-shoucang');
+				a.addClass('icon-shoucang1');
+
+			}
+		}
+	</script>
+</body>
+
+</html>

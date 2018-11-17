@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon event_back mui-pull-left logo"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">确认订单</h1>
+		</header>
+		<div class="header_counter yes_order_box">
+			<ul class="gongyong_list">
+				<li>
+					<span class="list_photo">
+						<img src=""/>
+					</span>
+					<div class="list_conter">
+						<span>
+							<p id="s_name">馈赠·四季繁歌新人豪礼</p>
+							<!--<i class="iconfont icon-shoucang1"></i> --> <!--图标变色 加 class active   换class icon-shoucang -->
+						</span>
+						<span id="s_content">回城券·10悟道仙珠·10悟道仙珠</span>
+						<span>
+							<p><b id="s_jifen"> </b>积分</p>
+							<p id="s_type"> </p>
+						</span>
+					</div>
+				</li>
+			</ul>
+			<div class="zhifu_fama">
+				<ul>
+					<li class="button">
+						<p>购买数量</p>
+						<div class="mui-numbox" data-numbox-step='1' data-numbox-min='1' data-numbox-max='100'>
+						  <button class="mui-btn mui-numbox-btn-minus" type="button"><i class="iconfont icon-jian"></i></button>
+						  <input class="mui-numbox-input" type="number" />
+						  <button class="mui-btn mui-numbox-btn-plus" type="button"><i class="iconfont icon-jia"></i></button>
+						</div>
+					</li>
+					<!-- <li>
+						<p>QQ账号</p>
+						<input type="text" placeholder=" " />
+					</li>
+					<li>
+						<p>游戏账号</p>
+						<input type="text" placeholder=" " />
+					</li>
+					<li>
+						<p>游戏名称</p>
+						<input type="text" placeholder=" " />
+					</li> -->
+					<li id="beizhu">
+						<p>备注</p>
+						<input type="text" placeholder="请输入备注" />
+					</li>
+				</ul>
+			</div>
+			<div class="yes_button">
+				<span>
+					<p>合计:<b id="sumPrice">  </b></p>
+				</span>
+				<span onclick="goOrder()">提交订单</span>
+			</div>
+		</div>
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js" ></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script type="text/javascript" src="../js/mui.min.js" ></script>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script>
+	 var sid,s_type,s_jifen,uid,nums,num=1,count,rel_price;
+		 	uid=$api.getStorage('userId');
+
+		function api_init()
+		{
+		 sid=api.pageParam.sid;
+			getData();
+
+		}
+
+		function getData(){
+			api.ajax({
+				url: apis + 'shop/detail',
+				method: 'get',
+				data: {
+					values: {
+						id: sid
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					$(".list_photo img").attr('src',iapi + ret.data.s_pic)
+					$("#s_name").text(ret.data.s_name);
+					$("#s_jifen").text(ret.data.s_jifen);
+					s_jifen=ret.data.s_jifen;
+					$("#s_content").html(ret.data.s_content);
+					$("#s_type").text(ret.data.rules_name);
+					s_type = ret.data.s_type;
+					nums=ret.data.s_num;
+
+					$("#sumPrice").text(s_jifen);
+
+					 console.log(JSON.stringify(ret));
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+			});
+			api.ajax({
+			    url: apis+'order/orderentry',
+			    method: 'get',
+			    data: {
+			    }
+			},function(ret, err){
+			    if (ret) {
+						if(!ret.data==''){
+							var html='';
+							$.each(ret.data,function(k,v){
+								count=k;
+
+								html+="<li><p>"+v.name+"</p><input type='text' dataname='"+v.name+"' id='content"+k+"' placeholder='请输入"+v.name+"' /></li>";
+							})
+						$("#beizhu").before(html);
+						}
+			        console.log( JSON.stringify( ret ) );
+			    } else {
+			        //alert( JSON.stringify( err ) );
+			    }
+			});
+
+
+				//用户信息，
+				api.ajax({
+					url: apis + 'manage/userinfo',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid
+						},
+
+					}
+				}, function(ret, err) {
+					if (ret) {
+
+						var u_jifen = ret.data.u_jifen;
+						var zhekou = ret.data.zhekou;
+
+						rel_price=s_jifen*zhekou;
+
+
+
+					} else {
+
+					}
+				});
+
+		}
+		$(".mui-numbox-input").on('change',function(){
+
+			var sumPrice=$(".mui-numbox-input").val()*s_jifen;
+			$("#sumPrice").text(sumPrice);
+
+
+		})
+		function goOrder(){
+			var num=$(".mui-numbox-input").val();
+			console.log(num+'-'+nums);
+			// if(parseInt(num)>parseInt(nums)){
+			// 	api.toast({
+			// 			msg: '最大兑换数量为'+nums,
+			// 			duration: 2000,
+			// 			location: 'bottom'
+			// 	});
+			//
+			// 	return;
+			// }
+	 var remark=$("#beizhu input").val();
+		var content='';
+
+	 for (var i = 0; i <=count; i++) {
+		 console.log("#content"+i);
+		 if($("#content"+i).val()==''){
+			 api.toast({
+					 msg: '订单信息不能为空，请填写完善',
+					 duration: 2000,
+					 location: 'bottom'
+			 });
+			 return;
+		 }
+
+	  content+=$("#content"+i).attr('dataname')+":"+$("#content"+i).val()+',';
+	 }
+
+			//生成order
+			api.ajax({
+					url: apis+'order/goOrder',
+					method: 'get',
+					data: {
+							values: {
+									uid: uid,
+									price:rel_price,
+									gid:sid,
+									num:num,
+									remark:remark,
+									content:content,
+							},
+
+					}
+			},function(ret, err){
+					if (ret) {
+						if(ret.code==1){
+							oid=ret.data;
+							//更新订单页面
+							api.execScript({
+								name: 'root',
+								frameName: 'order',
+								script: 'getData("all",0);'
+							});
+							//更新首页
+							api.execScript({
+								name: 'root',
+								frameName: 'index',
+								script: 'getnums()'
+							});
+
+							//跳转支付页面
+							api.openWin({
+								name: 'zaixian_zhifu',
+								url: './zaixian_zhifu.html',
+								pageParam: {
+									oid: oid,
+								}
+							});
+						}else {
+						 alert('订单提交失败');
+						}
+
+					} else {
+							console.log( JSON.stringify( err ) );
+					}
+			});
+
+		}
+			</script>
+	</body>
+</html>

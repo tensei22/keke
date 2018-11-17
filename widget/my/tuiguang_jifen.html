@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar touming_head">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">我的下线积分推广</h1>
+		</header>
+		<div class="tk_jifen">
+			<div class="tk_top">
+				<p><b id="refer_score"></b>分</p>
+				<p>推广积分</p>
+			</div>
+			<div class="tk_list jifen_box">
+				<h1>推广积分明细</h1>
+				<ul class="jifen_list">
+					<!-- <li>
+						<span>
+							<p>兑换 馈赠·四季繁歌新人豪礼</p>
+							<p>2018-10-01  12:11:42</p>
+						</span>
+						<span>
+							<p>+500积分</p>
+						</span>
+					</li>
+					<li>
+						<span>
+							<p>兑换 馈赠·四季繁歌新人豪礼</p>
+							<p>2018-10-01  12:11:42</p>
+						</span>
+						<span>
+							<p>+500积分</p>
+						</span>
+					</li> -->
+				</ul>
+			</div>
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script>
+		 var uid;
+		 uid=$api.getStorage('userId');
+		function api_init(){
+				getData()
+
+					getScore();
+
+		}
+
+		function getScore() {
+			api.ajax({
+				url: apis + 'manage/myReferTuiZjifen',
+				method: 'post',
+				data: {
+					values: {
+						uid: uid,
+					}
+				}
+			},function(ret, err) {
+				console.log(JSON.stringify(ret));
+				if (ret.code == 1) {
+					
+					$('#refer_score').text(ret.data);
+				}
+			});
+		}
+
+		function getData() {
+			api.ajax({
+				url: apis + 'manage/myReferTuiJifen',
+				method: 'post',
+				data: {
+					values: {
+						uid: uid
+					}
+				}
+			}, function(ret, err) {
+
+				if (ret.code == 1) {
+
+					if (ret.data.length > 0) {
+						var html = '';
+						$.each(ret.data, function(i,v){
+							html += '<li><span><p>'+v.createtime+'</p><p>'+v.createtime+'</p></span><span><p>+'+v.yq_jifen+'积分</p></span></li>';
+						});
+						$('.jifen_list').append(html);
+					}
+				}
+			})
+		}
+		</script>
+	</body>
+</html>

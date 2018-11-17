@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body style="background: #fff;">
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">兑换成功</h1>
+		</header>
+		<div class="header_counter">
+			<div class="success_box">
+				<div class="success_icon">
+					<i class="iconfont icon-duihuanchenggong"></i>
+					<p>兑换成功</p>
+					<p id="jifen"></p>
+				</div>
+				<div class="success_type">
+					<p>订单号：<b id="ordernum"> </b></p>
+					<p id="status">状态：<b>处理中</b></p>
+					<p id="jihuoma">激活码：<b> </b><sapn style="color:#fb7299;margin-left:8px;" id="fuzhi">[复制]</sapn></p>
+				</div>
+				<div class="success_btn">
+					<button class="duihuan_button background" onclick="selectOrder()">查看订单</button>
+					<button class="duihuan_button background" onclick="index()">返回首页</button>
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="../js/jquery-2.1.1.min.js" ></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script type="text/javascript" src="../js/mui.min.js" ></script>
+		<script type="text/javascript" src="../js/common.js"></script>
+		<script>
+		 var oid,code;
+
+		function api_init()
+		{
+		 oid=api.pageParam.oid;
+			getData();
+		}
+		function getData()
+		{
+			api.ajax({
+			    url: apis+'order/orderDetail',
+			    method: 'post',
+			    data: {
+			        values: {
+			            oid: oid
+			        },
+			    }
+			},function(ret, err){
+			    if (ret) {
+						$("#ordernum").text(ret.data.ordernum);
+						if(ret.data.o_type==1){
+								$("#status").hide();
+								$("#jihuoma b").text(ret.data.j_name);
+								code=ret.data.j_name;
+						}else {
+								$("#jihuoma").hide();
+
+						}
+
+			      console.log( JSON.stringify( ret ) );
+			    } else {
+			        //alert( JSON.stringify( err ) );
+			    }
+			});
+
+		}
+		function selectOrder(){
+
+			api.openWin({
+				name: 'order_detail',
+				url: '../order/order_detail.html',
+				pageParam: {
+					oid: oid,
+				}
+			});
+		}
+		function index(){
+			api.closeToWin({
+					name: 'root'
+			});
+			api.execScript({
+					name: 'root',
+					script: 'change(0)'
+			});
+		}
+
+		$("#fuzhi").on('click',function(){
+			var clipBoard = api.require('clipBoard');
+
+			clipBoard.set({
+					value: code
+			}, function(ret, err) {
+					if (ret) {
+
+							 api.toast({
+									 msg: '复制成功',
+									 duration: 2000,
+									 location: 'middle'
+							 });
+
+					} else {
+
+					}
+			});
+		})
+		</script>
+	</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo " id="saveInfo"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">修改昵称</h1>
+		</header>
+		<div class="header_counter xiugai_name">
+			<div class="nc_input">
+				<input id="nicheng" type="text" value="沉鱼落雁"/>
+			</div>
+			<p class="ts">昵称长度2~16个字，可使用中英文字母组合,返回自动保存</p>
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script type="text/javascript" src="../js/api.js"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script>
+		var nicheng = '',uid;
+		uid=$api.getStorage("userId");
+		api_init = function () {
+			getInfo();
+
+
+		}
+		function getInfo() {
+			api.ajax({
+				url: apis + 'manage/userinfo',
+				method: 'get',
+				data: {
+					values: {
+						uid: uid
+					}
+				}
+			}, function(ret, err) {
+				console.log(JSON.stringify(ret))
+				if (ret.code == 1) {
+					nicheng = ret.data.nicheng;
+
+					$('#nicheng').val(nicheng);
+
+				}
+			});
+		}
+		//保存数据
+		$('#saveInfo').click(function() {
+				var new_nicheng = $('#nicheng').val();
+				console.log(new_nicheng)
+				if(nicheng==new_nicheng){
+					api.closeWin({
+
+					});
+					return;
+				}
+
+				var length=new_nicheng.length;
+
+				if(length<2 ||length>16){
+					api.toast({
+					    msg: '昵称长度为2~16个字',
+					    duration: 2000,
+					    location: 'bottom'
+					});
+					return;
+				}
+
+
+				api.ajax({
+					url: apis + 'manage/up_nicheng',
+					method: 'post',
+					data: {
+						values: {
+							uid: uid,
+							nicheng: new_nicheng,
+						}
+					}
+				}, function(ret,err){
+					console.log(JSON.stringify(ret));
+					api.toast({
+							msg: ret.msg,
+							duration: 2000,
+							location: 'bottom'
+					});
+					if (ret.code == 1) {
+						api.execScript({
+								name: 'root',
+								frameName: 'my',
+								script: 'getInfo();'
+						});
+						api.execScript({
+								name: '../my/info.html',
+								script: 'getInfo(1);'
+						});
+						api.closeWin({
+
+						});
+
+					}
+
+
+
+
+				})
+		})
+
+			</script>
+	</body>
+</html>

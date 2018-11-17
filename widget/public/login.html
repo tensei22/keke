@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title></title>
+	<link rel="stylesheet" href="../css/mui.min.css" />
+	<link rel="stylesheet" href="../css/iconfont.css" />
+	<link rel="stylesheet" href="../css/style.css" />
+	<style media="screen">
+		.public_box{background: #fff}
+	</style>
+</head>
+
+<body style="background: #fff;">
+	<div class="header_counter">
+		<div class="public_box">
+			<div class="public_logo">
+				<span>
+						<img src="../img/logo.png"/>
+					</span>
+				<p>可可商城</p>
+			</div>
+			<ul class="public_input">
+				<li>
+					<i class="iconfont icon-shouji"></i>
+					<input type="text" id="account" placeholder="请输入手机号/QQ邮箱" />
+				</li>
+				<li class="right_text">
+					<i class="iconfont icon-suo"></i>
+					<input type="password" id="pad" placeholder="请输入密码（6~12位）" />
+					<p onclick="pad()">忘记密码</p>
+				</li>
+			</ul>
+			<button class="duihuan_button top">登录</button>
+			<p class="zhanghao">没有账号，前往<b id="zhuce">注册</b></p>
+		</div>
+	</div>
+	<script type="text/javascript" src="../js/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="../js/common.js"></script>
+	<script type="text/javascript" src="../js/api.js"></script>
+	<script type="text/javascript" src="../js/mui.min.js"></script>
+	<script type="text/javascript">
+		function api_init() {}
+		$(".duihuan_button").on("click", function() {
+			var account = $("#account").val();
+			var pad = $("#pad").val();
+			if (!account) {
+				api.toast({
+					msg: '请输入手机号或邮箱',
+					duration: 2000,
+					location: 'bottom'
+				});
+				return;
+			}
+			if (!pad) {
+				api.toast({
+					msg: '请输入密码',
+					duration: 2000,
+					location: 'bottom'
+				});
+				return;
+			}
+			api.ajax({
+				url: apis + 'manage/login',
+				method: 'post',
+				data: {
+					values: {
+						account: account,
+						pad: pad,
+					},
+
+				}
+			}, function(ret, err) {
+				if (ret) {
+					console.log(JSON.stringify(ret));
+					if (ret.code == 1) {
+						$api.setStorage('userId', ret.uid);
+						api.toast({
+							msg: '登录成功',
+							duration: 2000,
+							location: 'bottom'
+						});
+								//更新我的页面
+							api.execScript({
+								name: 'root',
+								frameName: 'my',
+								script: 'getInfo();'
+							});
+						//	更新订单页面
+							api.execScript({
+							    name: 'root',
+							    frameName: 'order',
+							    script: 'getData("all",0);'
+							});
+							//更改首页
+							api.execScript({
+									name: 'root',
+									frameName:'index',
+									script: 'getgoods();'
+							});
+							api.execScript({
+								name: 'root',
+								script: 'change(3)'
+							});
+							setTimeout(function() {
+
+
+								api.closeWin();
+							}, 500)
+
+
+
+
+
+					} else {
+						api.toast({
+							msg: ret.msg,
+							duration: 2000,
+							location: 'bottom'
+						});
+					}
+				} else {
+					//alert( JSON.stringify( err ) );
+				}
+			});
+
+		})
+		$("#zhuce").on('click', function() {
+			api.openWin({
+				name: 'zhuce',
+				url: './zhuce.html',
+
+			});
+		});
+
+		function pad() {
+			api.openWin({
+				name: 'zhaohui_mima',
+				url: './zhaohui_mima.html',
+
+			});
+		}
+	</script>
+</body>
+
+</html>

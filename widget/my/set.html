@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	    <title></title>
+	    <link rel="stylesheet" href="../css/mui.min.css" />
+	    <link rel="stylesheet" href="../css/iconfont.css" />
+	    <link rel="stylesheet" href="../css/style.css" />
+	</head>
+	<body>
+		<!--头 -->
+		<header class="mui-bar mui-bar-nav">
+			<a class="mui-icon mui-pull-left logo event_back"><i class="iconfont icon-fanhui"></i></a>
+			<h1 class="mui-title">设置</h1>
+		</header>
+		<div class="header_counter">
+			<ul class="set_box">
+				<li class="newact" url="xiugai_mima.html">
+					<p>修改密码</p>
+				</li>
+				<li class="clearCache">
+					<p>清除缓存</p>
+					<p id="cache_size">0MB</p>
+				</li>
+				<li onclick="checkUpdate()">
+					<p>版本更新</p>
+					<p>检查更新</p>
+				</li>
+				<li class="newact" url="guanyu.html">
+					<p>关于我们</p>
+				</li>
+				<li style="display:none;" id='text' ></li>
+			</ul>
+			  <button class="duihuan_button" id="logout" onclick="logout()">退出登录</button>
+		</div>
+		<script src="../js/jquery-2.1.1.min.js" charset="utf-8"></script>
+		<script src="../js/api.js" charset="utf-8"></script>
+		<script src="../js/common.js" charset="utf-8"></script>
+		<script type="text/javascript">
+			api_init = function () {
+				api.sendEvent({
+					 name: 'myEvent',
+					 extra: {
+							 key1: 'value1',
+							 key2: 'value2',
+								key3: 'value3'
+					 }
+			 });
+				getCacheSize()
+			}
+			$(function(){
+				$('.clearCache').click(function(){
+					api.confirm({
+							title: '缓存清除',
+							msg: '确定清楚缓存？',
+							buttons: ['确定', '取消']
+					}, function(ret, err) {
+							var index = ret.buttonIndex;
+							if (index == 1) {
+									api.clearCache(function() {
+											api.toast({
+													msg: '清除完成'
+											});
+											getCacheSize();
+									});
+							}
+					});
+				})
+			})
+			function getCacheSize() {
+					api.getCacheSize(function(ret) {
+							var size = parseInt(ret.size / 1024) + 'KB';
+							$api.byId('cache_size').innerHTML = size;
+					});
+			}
+			function logout() {
+
+					api.toast({
+							msg: '退出成功',
+							location: 'middle'
+					});
+					$api.clearStorage();
+					//更改首页
+					api.execScript({
+							name: 'root',
+							frameName:'index',
+							script: 'getgoods();'
+					});
+					api.execScript({
+							name: 'root',
+							script: 'change(0)'
+					});
+					setTimeout(function(){
+						api.closeToWin({
+								name: "root"
+						});
+
+					},500)
+
+
+
+			}
+			function checkUpdate() {
+				api.showProgress({
+						style: 'default',
+						animationType: 'fade',
+						title: '努力加载中...',
+						text: '先喝杯茶...',
+						modal: false
+				});
+					var mam = api.require('mam');
+					mam.checkUpdate(function(ret, err) {
+								api.hideProgress();
+
+
+							if (ret) {
+								if (!ret.status) {
+							 toast('服务器繁忙，请稍后再试');
+							 return;
+					 }
+
+									var result = ret.result;
+									if (result.update == true && result.closed == false) {
+
+											var str = '新版本型号:' + result.version + ';更新提示语:' + result.updateTip + ';下载地址:' + result.source + ';发布时间:' + result.time;
+
+											api.confirm({
+													title: '有新的版本,是否下载并安装',
+													msg: str,
+													buttons: ['立即更新', '取消']
+											}, function(ret, err) {
+													if (ret.buttonIndex == 1) {
+															if (api.systemType == "android") {
+																	api.download({
+																			url: result.source,
+																			report: true
+																	}, function(ret, err) {
+																			if (ret && 0 == ret.state) { /* 下载进度 */
+																					api.toast({
+																							msg: "正在下载应用" + ret.percent + "%",
+																							duration: 2000
+																					});
+																			}
+																			if (ret && 1 == ret.state) { /* 下载完成 */
+																					var savePath = ret.savePath;
+																					api.installApp({
+																							appUri: savePath
+																					});
+																			}
+																	});
+															}
+															if (api.systemType == "ios") {
+																	api.installApp({
+																			appUri: result.source
+																	});
+															}
+													}
+											});
+									} else {
+											api.alert({
+													msg: "当前已是最新版本"
+											});
+									}
+							} else {
+									api.alert({
+											msg: "服务器繁忙，请稍后再试"
+									});
+							}
+					});
+			}
+
+		</script>
+	</body>
+</html>
