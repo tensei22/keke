@@ -3605,6 +3605,7 @@ select:focus
 .mui-control-content.mui-active
 {
     display: block;
+    height: 20%;
 }
 
 .mui-popover
