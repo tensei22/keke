@@ -298,7 +298,7 @@
 					//	$("#item1 ul").empty();
 						$.each(ret.data, function(k, v) {
 
-							htmlss += '<li style="height:50px" onclick="goerjiList(' + v.id + ')"><p>' + v.c_name + '</p></li>';
+							htmlss += '<li style="height:50px;text-align: center" onclick="goerjiList(' + v.id + ')"><p>' + v.c_name + '</p></li>';
 
 						})
 						$("#item1 ul").html(htmlss);
