@@ -203,9 +203,17 @@
 //    });
 //});
 //
-        var browser = api.require('webBrowser');
-browser.open({
-    url: 'http://www.taobao.com'
+api.openApp({
+    androidPkg: 'android.intent.action.VIEW',
+    mimeType: 'text/html',
+    uri: 'http://www.baidu.com'
+}, function(ret, err) {
+    if (ret) {
+        alert(JSON.stringify(ret));
+    } else {
+        alert(JSON.stringify(err));
+    }
+});
 });
         })
 
