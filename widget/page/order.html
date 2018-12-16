@@ -226,7 +226,7 @@
 								}
 
 								html += "<li onclick='order(" + p_status + "," + v.id + ")'><span class='list_photo'><img src=" + iapi + v.s_pic + " /></span><div class='list_conter'><span><p>" + v.s_name + "</p>";
-								html += '</span><span>' + v.s_jianjie + '</span><span><p><b>100</b>积分</p><p>' + v.rules_name + '</p>' + status + '</span></div></li>';
+								html += '</span><span>' + v.s_jianjie + '</span><span><p>' + v.rules_name + '</p>' + status + '</span></div></li>';
 							})
 							$(".gongyong_list").append(html);
 							api.hideProgress();
